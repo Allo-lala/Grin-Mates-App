@@ -1,7 +1,12 @@
 'use client';
 
 import DashboardScreen from '@/components/screens/dashboard-screen';
+import AuthGuard from '@/components/auth-guard';
 
 export default function DashboardPage() {
-  return <DashboardScreen />;
+  return (
+    <AuthGuard requireKYC={true}>
+      <DashboardScreen />
+    </AuthGuard>
+  );
 }

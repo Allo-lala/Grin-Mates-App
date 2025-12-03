@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar, MapPin, Users, Clock, ArrowRight } from 'lucide-react';
+import { Calendar, MapPin, Users, Clock, ArrowRight, Coins } from 'lucide-react';
+import { MobileLayout } from '@/components/layout/mobile-layout';
+import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import Link from 'next/link';
 
 interface Event {
@@ -93,91 +95,95 @@ export function EventsScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="bg-gradient-to-br from-[#1db584] to-[#15a576] px-4 pb-6 pt-8">
-        <h1 className="mb-2 text-3xl font-bold text-white">Events</h1>
-        <p className="text-white/90">Join eco-friendly activities and earn green points</p>
-      </div>
-
-      <div className="sticky top-0 z-10 bg-white shadow-sm">
-        <div className="flex border-b border-gray-200">
-          <button
-            onClick={() => setActiveTab('upcoming')}
-            className={`flex-1 px-4 py-4 text-sm font-semibold transition-colors ${
-              activeTab === 'upcoming'
-                ? 'border-b-2 border-[#1db584] text-[#1db584]'
-                : 'text-gray-500'
-            }`}
-          >
-            Upcoming Events
-          </button>
-          <button
-            onClick={() => setActiveTab('past')}
-            className={`flex-1 px-4 py-4 text-sm font-semibold transition-colors ${
-              activeTab === 'past'
-                ? 'border-b-2 border-[#1db584] text-[#1db584]'
-                : 'text-gray-500'
-            }`}
-          >
-            Past Events
-          </button>
+    <MobileLayout showBottomNav={true}>
+      <div className="min-h-screen bg-gray-50">
+        <div className="bg-gradient-to-br from-[#1db584] to-[#15a576] pb-6 pt-8">
+          <ResponsiveContainer maxWidth="lg" padding="md">
+            <h1 className="mb-2 text-3xl font-bold text-white">Events</h1>
+            <p className="text-white/90">Join eco-friendly activities and earn green points</p>
+          </ResponsiveContainer>
         </div>
-      </div>
 
-      <div className="space-y-4 p-4">
-        {events.map((event) => (
-          <Link
-            key={event.id}
-            href={`/events/${event.id}`}
-            className="block overflow-hidden rounded-xl bg-white shadow-sm transition-shadow hover:shadow-md"
-          >
-            <img
-              src={event.image || "/placeholder.svg"}
-              alt={event.title}
-              className="h-48 w-full object-cover"
-            />
-            <div className="p-4">
-              <div className="mb-2 flex items-center justify-between">
-                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getCategoryColor(event.category)}`}>
-                  {event.category.charAt(0).toUpperCase() + event.category.slice(1)}
-                </span>
-                <span className="flex items-center gap-1 text-sm font-semibold text-[#1db584]">
-                  <Coins className="h-4 w-4" />
-                  +{event.greenPointsReward} pts
-                </span>
-              </div>
-              
-              <h3 className="mb-2 text-lg font-bold text-gray-900">{event.title}</h3>
-              
-              <div className="space-y-1 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span>{new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  <span>{event.time}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  <span>{event.location}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  <span>{event.attendees} attendees</span>
-                </div>
-              </div>
+        <div className="sticky top-0 z-10 bg-white shadow-sm">
+          <div className="flex border-b border-gray-200">
+            <button
+              onClick={() => setActiveTab('upcoming')}
+              className={`flex-1 px-4 py-4 text-sm font-semibold transition-colors min-h-[44px] ${
+                activeTab === 'upcoming'
+                  ? 'border-b-2 border-[#1db584] text-[#1db584]'
+                  : 'text-gray-500'
+              }`}
+            >
+              Upcoming Events
+            </button>
+            <button
+              onClick={() => setActiveTab('past')}
+              className={`flex-1 px-4 py-4 text-sm font-semibold transition-colors min-h-[44px] ${
+                activeTab === 'past'
+                  ? 'border-b-2 border-[#1db584] text-[#1db584]'
+                  : 'text-gray-500'
+              }`}
+            >
+              Past Events
+            </button>
+          </div>
+        </div>
 
-              <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#1db584] px-4 py-2.5 font-semibold text-white hover:bg-[#1db584]/90">
-                {activeTab === 'upcoming' ? 'Register Now' : 'View Details'}
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
-          </Link>
-        ))}
+        <ResponsiveContainer maxWidth="lg" padding="md">
+          <div className="space-y-4">
+            {events.map((event) => (
+              <Link
+                key={event.id}
+                href={`/events/${event.id}`}
+                className="block overflow-hidden rounded-xl bg-white shadow-sm transition-shadow hover:shadow-md"
+              >
+                <img
+                  src={event.image || "/placeholder.svg"}
+                  alt={event.title}
+                  className="h-48 w-full object-cover"
+                />
+                <div className="p-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${getCategoryColor(event.category)}`}>
+                      {event.category.charAt(0).toUpperCase() + event.category.slice(1)}
+                    </span>
+                    <span className="flex items-center gap-1 text-sm font-semibold text-[#1db584]">
+                      <Coins className="h-4 w-4" />
+                      +{event.greenPointsReward} pts
+                    </span>
+                  </div>
+                  
+                  <h3 className="mb-2 text-lg font-bold text-gray-900">{event.title}</h3>
+                  
+                  <div className="space-y-1 text-sm text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      <span>{new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4" />
+                      <span>{event.time}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      <span>{event.location}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      <span>{event.attendees} attendees</span>
+                    </div>
+                  </div>
+
+                  <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#1db584] px-4 py-2.5 font-semibold text-white hover:bg-[#1db584]/90 min-h-[44px]">
+                    {activeTab === 'upcoming' ? 'Register Now' : 'View Details'}
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </ResponsiveContainer>
       </div>
-    </div>
+    </MobileLayout>
   );
 }
-
-import { Coins } from 'lucide-react';

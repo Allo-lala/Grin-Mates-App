@@ -1,46 +1,49 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import OnboardingScreen from '@/components/screens/onboarding-screen';
-import { checkUserSession } from '@/lib/auth';
+import { usePrivy } from '@privy-io/react-auth';
+import WelcomeScreen from '@/components/screens/welcome-screen';
+import { Loader2 } from 'lucide-react';
 
 export default function Home() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [showOnboarding, setShowOnboarding] = useState(true);
+  const { authenticated, ready } = usePrivy();
 
   useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        const session = await checkUserSession();
-        if (session) {
-          setShowOnboarding(false);
-          router.push('/dashboard');
-        } else {
-          setShowOnboarding(true);
-        }
-      } catch (error) {
-        console.error('Error checking session:', error);
-        setShowOnboarding(true);
-      } finally {
-        setIsLoading(false);
+    // Wait for Privy to be ready
+    if (!ready) {
+      return;
+    }
+
+    // If user is authenticated, check KYC status and redirect accordingly
+    if (authenticated) {
+      const kycCompleted = localStorage.getItem('kyc_completed') === 'true';
+      
+      if (kycCompleted) {
+        router.push('/dashboard');
+      } else {
+        router.push('/kyc');
       }
-    };
+    }
+  }, [authenticated, ready, router]);
 
-    initializeApp();
-  }, [router]);
-
-  if (isLoading) {
+  // Show loading state while Privy initializes
+  if (!ready) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-primary to-primary-light">
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-[#1db584] to-[#15a576]">
         <div className="space-y-4 text-center text-white">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-white border-t-transparent mx-auto"></div>
-          {/* <p className="text-lg font-semibold">Loading </p> */}
+          <Loader2 className="h-12 w-12 animate-spin mx-auto" />
         </div>
       </div>
     );
   }
 
-  return showOnboarding ? <OnboardingScreen /> : null;
+  // If authenticated, don't show welcome screen (redirect will happen)
+  if (authenticated) {
+    return null;
+  }
+
+  // Show welcome screen for unauthenticated users
+  return <WelcomeScreen />;
 }

@@ -11,6 +11,11 @@ body {
   @apply bg-background text-foreground antialiased;
 }
 
+/* Safe area insets for notched devices (iOS, Android) */
+.safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* Utility classes */
 .container {
   @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
@@ -30,6 +35,37 @@ body {
 
 .text-balance {
   text-wrap: balance;
+}
+
+/* Touch feedback for interactive elements - Requirements: 7.1 */
+/* Provides immediate visual feedback within 100ms */
+@layer utilities {
+  .touch-feedback {
+    @apply transition-all duration-100 active:scale-[0.98] active:opacity-90;
+  }
+  
+  .touch-feedback-subtle {
+    @apply transition-all duration-100 active:scale-[0.99] active:opacity-95;
+  }
+}
+
+/* Apply touch feedback to all interactive elements */
+button:not(:disabled),
+a:not([aria-disabled="true"]),
+[role="button"]:not([aria-disabled="true"]) {
+  @apply touch-feedback;
+}
+
+/* Ensure minimum touch target size - Requirements: 4.3 */
+@media (pointer: coarse) {
+  button,
+  a,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-width: 44px;
+    min-height: 44px;
+  }
 }
 
 :root {

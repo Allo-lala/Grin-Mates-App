@@ -1,5 +1,7 @@
 'use client';
 
+import { Input } from '@/components/ui/input';
+
 interface KYCStepProps {
   title: string;
   fields: Array<{
@@ -7,26 +9,28 @@ interface KYCStepProps {
     type: string;
     value: string;
     onChange: (value: string) => void;
+    error?: string;
   }>;
 }
 
+/**
+ * KYC Step component with immediate validation feedback
+ * Requirements: 7.5
+ */
 export default function KYCStep({ title, fields }: KYCStepProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-foreground">{title}</h2>
       {fields.map((field, index) => (
-        <div key={index}>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            {field.label}
-          </label>
-          <input
-            type={field.type}
-            value={field.value}
-            onChange={(e) => field.onChange(e.target.value)}
-            placeholder={field.label}
-            className="w-full rounded-lg border border-muted bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-          />
-        </div>
+        <Input
+          key={index}
+          label={field.label}
+          type={field.type}
+          value={field.value}
+          onChange={(e) => field.onChange(e.target.value)}
+          placeholder={field.label}
+          error={field.error}
+        />
       ))}
     </div>
   );

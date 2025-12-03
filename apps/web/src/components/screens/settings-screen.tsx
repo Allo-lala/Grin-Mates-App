@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Moon, Sun, Bell, Lock, HelpCircle, FileText } from 'lucide-react';
+import { MobileLayout } from '@/components/layout/mobile-layout';
+import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import { useTheme } from 'next-themes';
 
 export default function SettingsScreen() {
@@ -50,77 +52,79 @@ export default function SettingsScreen() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted pb-20">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary/10 to-accent/10 px-4 py-8">
-        <div className="mx-auto max-w-2xl">
-          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+    <MobileLayout showBottomNav={true}>
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-primary/10 to-accent/10 py-8">
+          <ResponsiveContainer maxWidth="md" padding="md">
+            <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+          </ResponsiveContainer>
         </div>
-      </div>
 
-      {/* Settings */}
-      <div className="mx-auto max-w-2xl space-y-4 px-4 py-8">
-        {settings.map((setting, index) => {
-          const Icon = setting.icon;
-          return (
-            <button
-              key={index}
-              onClick={setting.onClick}
-              className="flex w-full items-center justify-between rounded-lg border border-muted bg-background p-4 hover:border-primary/30 hover:bg-muted/50 transition-all"
-            >
-              <div className="flex items-center gap-4 text-left">
-                <div className="rounded-lg bg-primary/10 p-3">
-                  <Icon className="h-5 w-5 text-primary" />
+        {/* Settings */}
+        <ResponsiveContainer maxWidth="md" padding="md" className="space-y-4 py-8">
+          {settings.map((setting, index) => {
+            const Icon = setting.icon;
+            return (
+              <button
+                key={index}
+                onClick={setting.onClick}
+                className="flex w-full items-center justify-between rounded-lg border border-muted bg-background p-4 hover:border-primary/30 hover:bg-muted/50 transition-all min-h-[44px]"
+              >
+                <div className="flex items-center gap-4 text-left">
+                  <div className="rounded-lg bg-primary/10 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center">
+                    <Icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">{setting.title}</p>
+                    <p className="text-sm text-muted-foreground">{setting.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-semibold text-foreground">{setting.title}</p>
-                  <p className="text-sm text-muted-foreground">{setting.description}</p>
-                </div>
-              </div>
 
-              {setting.type === 'toggle' && (
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setting.onChange?.(!setting.value);
-                  }}
-                  className={`relative h-6 w-11 rounded-full transition-colors ${
-                    setting.value ? 'bg-primary' : 'bg-muted'
-                  }`}
-                >
-                  <div
-                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
-                      setting.value ? 'translate-x-5' : 'translate-x-0.5'
+                {setting.type === 'toggle' && (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setting.onChange?.(!setting.value);
+                    }}
+                    className={`relative h-6 w-11 rounded-full transition-colors flex-shrink-0 ${
+                      setting.value ? 'bg-primary' : 'bg-muted'
                     }`}
-                  />
-                </button>
-              )}
+                  >
+                    <div
+                      className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
+                        setting.value ? 'translate-x-5' : 'translate-x-0.5'
+                      }`}
+                    />
+                  </button>
+                )}
 
-              {setting.type === 'action' && (
-                <div className="text-right">
-                  <Sun className="h-5 w-5 text-muted-foreground" />
-                </div>
-              )}
+                {setting.type === 'action' && (
+                  <div className="text-right flex-shrink-0">
+                    <Sun className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                )}
 
-              {setting.type === 'link' && (
-                <div className="text-right">
-                  <div className="h-5 w-5 rounded-full border border-muted-foreground" />
-                </div>
-              )}
-            </button>
-          );
-        })}
+                {setting.type === 'link' && (
+                  <div className="text-right flex-shrink-0">
+                    <div className="h-5 w-5 rounded-full border border-muted-foreground" />
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </ResponsiveContainer>
+
+        {/* App info */}
+        <ResponsiveContainer maxWidth="md" padding="md" className="py-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            Grin Mates v0.1.0
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Built on Celo for a sustainable future
+          </p>
+        </ResponsiveContainer>
       </div>
-
-      {/* App info */}
-      <div className="mx-auto max-w-2xl px-4 py-8 text-center">
-        <p className="text-sm text-muted-foreground">
-          Grin Mates v0.1.0
-        </p>
-        <p className="mt-2 text-xs text-muted-foreground">
-          Built on Celo for a sustainable future
-        </p>
-      </div>
-    </div>
+    </MobileLayout>
   );
 }

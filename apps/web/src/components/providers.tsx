@@ -4,6 +4,7 @@ import { PrivyProvider } from "@privy-io/react-auth";
 import { ReactNode } from "react";
 import Image from "next/image";
 import logoImg from "@/assets/images/logo.png";
+import SessionManager from "./session-manager";
 
 const Logo = <Image src={logoImg} alt="logo" width={40} height={40} />;
 
@@ -67,6 +68,7 @@ export function Providers({ children }: { children: ReactNode }) {
         ],
       }}
     >
+      <SessionManager />
       {children}
     </PrivyProvider>
   );

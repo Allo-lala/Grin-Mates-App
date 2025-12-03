@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Send, Download } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { toast } from '@/lib/toast';
 
 interface SendReceiveDialogProps {
   isOpen: boolean;
@@ -19,9 +22,40 @@ export default function SendReceiveDialog({
 }: SendReceiveDialogProps) {
   const [amount, setAmount] = useState('');
   const [recipientAddress, setRecipientAddress] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCopyAddress = () => {
     navigator.clipboard.writeText(walletAddress);
+    // Show success notification - Requirements: 7.3
+    toast.success('Address Copied!', 'Your wallet address has been copied to clipboard.');
+  };
+
+  const handleSend = async () => {
+    if (!recipientAddress || !amount) {
+      // Show error notification - Requirements: 7.4
+      toast.error('Invalid Input', 'Please enter both recipient address and amount.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate transaction
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Show success notification - Requirements: 7.3
+      toast.success('Transaction Sent!', `Successfully sent ${amount} to ${recipientAddress.slice(0, 6)}...${recipientAddress.slice(-4)}`);
+      
+      // Reset form
+      setAmount('');
+      setRecipientAddress('');
+      onClose();
+    } catch (error) {
+      // Show error notification - Requirements: 7.4
+      toast.error('Transaction Failed', 'Please try again or check your wallet balance.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -48,32 +82,27 @@ export default function SendReceiveDialog({
             <>
               {/* Send Form */}
               <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-foreground">
-                    Recipient Address
-                  </label>
-                  <input
-                    type="text"
-                    value={recipientAddress}
-                    onChange={(e) => setRecipientAddress(e.target.value)}
-                    placeholder="0x..."
-                    className="mt-2 w-full rounded-lg border border-muted bg-background px-4 py-2 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
-                  />
-                </div>
+                <Input
+                  label="Recipient Address"
+                  type="text"
+                  value={recipientAddress}
+                  onChange={(e) => setRecipientAddress(e.target.value)}
+                  placeholder="0x..."
+                />
 
                 <div>
-                  <label className="text-sm font-medium text-foreground">
+                  <label className="mb-2 block text-sm font-medium text-foreground">
                     Amount
                   </label>
-                  <div className="mt-2 flex gap-2">
-                    <input
+                  <div className="flex gap-2">
+                    <Input
                       type="number"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
                       placeholder="0.00"
-                      className="flex-1 rounded-lg border border-muted bg-background px-4 py-2 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+                      className="flex-1"
                     />
-                    <select className="rounded-lg border border-muted bg-background px-4 py-2 text-foreground focus:border-primary focus:outline-none">
+                    <select className="rounded-lg border border-muted bg-background px-4 py-3 text-foreground focus:border-primary focus:outline-none min-h-[44px]">
                       <option>CELO</option>
                       <option>cUSD</option>
                       <option>USDC</option>
@@ -81,9 +110,17 @@ export default function SendReceiveDialog({
                   </div>
                 </div>
 
-                <button className="w-full rounded-lg bg-blue-500 py-2 font-semibold text-white hover:bg-blue-600 transition-all">
+                <Button
+                  onClick={handleSend}
+                  isLoading={isSubmitting}
+                  loadingText="Sending..."
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  className="bg-blue-500 hover:bg-blue-600 focus:ring-blue-500/50"
+                >
                   Send
-                </button>
+                </Button>
               </div>
             </>
           ) : (
@@ -97,12 +134,15 @@ export default function SendReceiveDialog({
                   </p>
                 </div>
 
-                <button
+                <Button
                   onClick={handleCopyAddress}
-                  className="w-full rounded-lg bg-green-500 py-2 font-semibold text-white hover:bg-green-600 transition-all"
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  className="bg-green-500 hover:bg-green-600 focus:ring-green-500/50"
                 >
                   Copy Address
-                </button>
+                </Button>
 
                 <div className="rounded-lg border border-muted bg-background p-4">
                   <p className="text-sm text-muted-foreground text-center">

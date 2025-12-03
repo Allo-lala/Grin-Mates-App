@@ -3,68 +3,99 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { Wallet, Loader2 } from 'lucide-react';
+import { Wallet, Loader2, Mail, Shield } from 'lucide-react';
+import { MobileAppContainer } from '@/components/layout/mobile-app-container';
+import PrivyAuthButton from '@/components/privy-auth-button';
 
 export default function WalletConnectionScreen() {
-  const { login, authenticated, user, ready } = usePrivy();
+  const { authenticated, user, ready } = usePrivy();
   const router = useRouter();
 
   useEffect(() => {
     if (authenticated && user) {
-      router.push('/kyc');
+      // Check if KYC is already completed
+      const kycCompleted = localStorage.getItem('kyc_completed') === 'true';
+      
+      if (kycCompleted) {
+        router.push('/dashboard');
+      } else {
+        router.push('/kyc');
+      }
     }
   }, [authenticated, user, router]);
 
-  const handleConnect = async () => {
-    try {
-      await login();
-    } catch (error) {
-      console.error('[ Privy login error:', error);
-    }
+  const handleSuccess = () => {
+    // Navigation is handled by the useEffect above
+    console.log('Authentication successful');
+  };
+
+  const handleError = (error: Error) => {
+    console.error('Privy authentication error:', error);
   };
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#1db584]" />
-      </div>
+      <MobileAppContainer>
+        <div className="flex min-h-screen items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#1db584]" />
+        </div>
+      </MobileAppContainer>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1db584]/10 to-[#15a576]/10 px-4 py-8">
-      <div className="mx-auto max-w-2xl">
-        <div className="mb-12 text-center">
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#1db584]">
-            <Wallet className="h-10 w-10 text-white" />
-          </div>
-          <h1 className="mb-3 text-4xl font-bold text-gray-900">
-            Connect Your Wallet
-          </h1>
-          <p className="text-lg text-gray-600">
-            Choose your preferred crypto wallet to get started with Grin Mates
-          </p>
-        </div>
-
-        <div className="rounded-2xl bg-white p-8 shadow-xl">
-          <button
-            onClick={handleConnect}
-            className="w-full rounded-xl bg-[#1db584] px-6 py-4 text-lg font-semibold text-white transition-all hover:bg-[#1db584]/90 hover:shadow-lg"
-          >
-            Connect Wallet
-          </button>
-
-          <div className="mt-6 rounded-lg p-4">
-            <p className="text-center text-sm text-gray-600">
-              Engage • Empower • Earn
+    <MobileAppContainer>
+      <div className="min-h-screen bg-gradient-to-br from-[#1db584]/10 to-[#15a576]/10 px-4 py-8">
+        <div className="mx-auto max-w-md">
+          <div className="mb-8 text-center">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#1db584]">
+              <Wallet className="h-10 w-10 text-white" />
+            </div>
+            <h1 className="mb-3 text-3xl font-bold text-gray-900">
+              Connect Your Wallet
+            </h1>
+            <p className="text-base text-gray-600">
+              Choose your preferred crypto wallet to get started
             </p>
           </div>
-        </div>
 
-        <p className="mt-8 text-center text-sm text-gray-500">
-          By connecting, you agree to our Terms of Service and Privacy Policy
-        </p>
+          <div className="rounded-2xl bg-white p-6 shadow-xl">
+            <PrivyAuthButton
+              onSuccess={handleSuccess}
+              onError={handleError}
+              variant="primary"
+            />
+
+            <div className="mt-6 space-y-3">
+              <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
+                <Shield className="h-5 w-5 flex-shrink-0 text-[#1db584]" />
+                <div className="text-sm">
+                  <p className="font-semibold text-gray-900">Secure Authentication</p>
+                  <p className="text-gray-600">Connect with MetaMask, Coinbase, or other wallets</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
+                <Mail className="h-5 w-5 flex-shrink-0 text-[#1db584]" />
+                <div className="text-sm">
+                  <p className="font-semibold text-gray-900">Email Login Available</p>
+                  <p className="text-gray-600">No wallet? We'll create one for you</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-lg p-3">
+              <p className="text-center text-sm text-gray-600">
+                Engage • Empower • Earn
+              </p>
+            </div>
+          </div>
+
+          <p className="mt-6 text-center text-xs text-gray-500">
+            By connecting, you agree to our Terms of Service and Privacy Policy
+          </p>
+        </div>
       </div>
-    </div>
+    </MobileAppContainer>
   );
 }

@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import { X, Wallet, Coins, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { toast } from '@/lib/toast';
 
 interface DonateModalProps {
   isOpen: boolean;
@@ -15,13 +18,35 @@ export function DonateModal({ isOpen, onClose }: DonateModalProps) {
 
   if (!isOpen) return null;
 
-  const handleDonate = () => {
-    if (selectedMethod === 'wallet') {
-      console.log('[v0] Donating from wallet:', amount);
-    } else if (selectedMethod === 'points') {
-      console.log('[v0] Donating green points:', amount);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleDonate = async () => {
+    setIsSubmitting(true);
+    
+    try {
+      // Simulate donation processing
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      if (selectedMethod === 'wallet') {
+        console.log('[v0] Donating from wallet:', amount);
+        // Show success notification - Requirements: 7.3
+        toast.success('Donation Successful!', `You donated ${amount} USDC to support climate action.`);
+      } else if (selectedMethod === 'points') {
+        console.log('[v0] Donating green points:', amount);
+        setGreenPoints(prev => prev - parseInt(amount));
+        // Show success notification - Requirements: 7.3
+        toast.success('Donation Successful!', `You donated ${amount} green points to support climate action.`);
+      }
+      
+      onClose();
+      setAmount('');
+      setSelectedMethod(null);
+    } catch (error) {
+      // Show error notification - Requirements: 7.4
+      toast.error('Donation Failed', 'Please try again or contact support if the issue persists.');
+    } finally {
+      setIsSubmitting(false);
     }
-    onClose();
   };
 
   return (
@@ -96,37 +121,43 @@ export function DonateModal({ isOpen, onClose }: DonateModalProps) {
 
         {selectedMethod && (
           <div className="mb-6">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              Amount {selectedMethod === 'points' ? '(Points)' : '(USDC)'}
-            </label>
-            <input
+            <Input
+              label={`Amount ${selectedMethod === 'points' ? '(Points)' : '(USDC)'}`}
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter amount"
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-[#1db584] focus:outline-none focus:ring-2 focus:ring-[#1db584]/20"
+              error={
+                selectedMethod === 'points' && amount && parseInt(amount) > greenPoints
+                  ? 'Insufficient green points'
+                  : undefined
+              }
             />
-            {selectedMethod === 'points' && amount && parseInt(amount) > greenPoints && (
-              <p className="mt-1 text-sm text-red-500">Insufficient green points</p>
-            )}
           </div>
         )}
 
         <div className="flex gap-3">
-          <button
+          <Button
             onClick={onClose}
-            className="flex-1 rounded-lg border border-gray-300 px-4 py-3 font-semibold text-gray-700 hover:bg-gray-50"
+            variant="outline"
+            size="lg"
+            fullWidth
+            disabled={isSubmitting}
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleDonate}
             disabled={!selectedMethod || !amount || (selectedMethod === 'points' && parseInt(amount) > greenPoints)}
-            className="flex-1 rounded-lg bg-[#1db584] px-4 py-3 font-semibold text-white hover:bg-[#1db584]/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            isLoading={isSubmitting}
+            loadingText="Processing..."
+            variant="primary"
+            size="lg"
+            fullWidth
           >
             Donate
             <ArrowRight className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
       </div>
     </div>
