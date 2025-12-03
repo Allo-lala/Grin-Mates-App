@@ -29,6 +29,9 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-toast'],
   },
   
+  // Turbopack configuration (empty to silence warning, webpack config still used in webpack mode)
+  turbopack: {},
+  
   webpack: (config, { isServer }) => {
     // External packages that don't need to be bundled
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
