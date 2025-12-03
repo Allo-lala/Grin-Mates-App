@@ -14,9 +14,6 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   
-  // Production optimizations
-  swcMinify: true,
-  
   // Compiler optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
