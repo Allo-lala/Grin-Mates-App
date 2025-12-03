@@ -52,12 +52,12 @@ export default function WelcomeScreen() {
               </div>
               
               <div className="space-y-2">
-                <h1 className="text-4xl font-bold text-white">
-                  Welcome to
-                </h1>
-                <h2 className="text-5xl font-extrabold text-white">
+                <h1 className="text-5xl font-extrabold text-white">
                   GRIN MATES
-                </h2>
+                </h1>
+                {/* <h2 className="text-4xl font-bold text-white">
+                Welcome to 
+                </h2> */}
               </div>
             </div>
 
