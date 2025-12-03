@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm install && cd apps/web && npm run build",
+  "buildCommand": "npx turbo run build --filter=grin-mates",
   "outputDirectory": "apps/web/.next",
   "installCommand": "npm install",
   "framework": "nextjs",
