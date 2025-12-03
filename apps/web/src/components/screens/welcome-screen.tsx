@@ -43,7 +43,7 @@ export default function WelcomeScreen() {
               <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full backdrop-blur-sm">
                 <LazyImage
                   src={logoImg.src}
-                  alt="Grin Mates Logo"
+                  alt="Logo"
                   width={64}
                   height={64}
                   priority
