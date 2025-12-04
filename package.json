@@ -21,5 +21,8 @@
     "postcss": "^8.5",
     "tailwindcss": "^4.1.9",
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@privy-io/react-auth": "^3.8.1"
   }
 }
