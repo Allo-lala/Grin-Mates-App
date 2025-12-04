@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npx turbo run build --filter=web",
+  "buildCommand": "npx turbo run build --filter=grin-mates",
   "installCommand": "npm install",
   "framework": "nextjs",
   "regions": ["iad1"]
