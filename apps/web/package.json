@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --run --coverage",
+    "vercel-build": "next build",
     "verify:optimizations": "node scripts/verify-optimizations.js"
   },
   "dependencies": {

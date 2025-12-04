@@ -1,7 +1,7 @@
 {
-  "buildCommand": "npx turbo run build --filter=grin-mates",
-  "outputDirectory": "apps/web/.next",
+  "buildCommand": "npx turbo run build --filter=web",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "regions": ["iad1"]
+  "regions": ["iad1"],
+  "rootDirectory": "apps/web"
 }
