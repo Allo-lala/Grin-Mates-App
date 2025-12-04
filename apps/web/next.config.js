@@ -29,9 +29,7 @@ const nextConfig = {
   webpack: (config, { isServer }) => {
     // External packages that don't need to be bundled
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
-
-     // Fix Privy Solana module resolution
-    config.resolve.alias['@solana-program/system'] = '@solana/web3.js';
+    config.resolve.alias['@solana-program/system'] = false;
     
     // Optimize bundle size
     if (!isServer) {

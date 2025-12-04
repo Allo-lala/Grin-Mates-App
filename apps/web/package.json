@@ -16,7 +16,7 @@
     "verify:optimizations": "node scripts/verify-optimizations.js"
   },
   "dependencies": {
-    "@privy-io/react-auth": "^3.7.0",
+    "@privy-io/react-auth": "^3.8.1",
     "@privy-io/urls": "^0.0.2",
     "@radix-ui/react-dialog": "1.1.4",
     "@radix-ui/react-toast": "1.2.4",
@@ -37,7 +37,6 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
-
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
