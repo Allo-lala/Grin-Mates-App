@@ -2,6 +2,5 @@
   "buildCommand": "npx turbo run build --filter=web",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "regions": ["iad1"],
-  "rootDirectory": "apps/web"
+  "regions": ["iad1"]
 }
