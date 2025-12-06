@@ -1,0 +1,30 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.28"
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+gas_limit = 20000000
+
+# File system access for deployment artifacts
+fs_permissions = [
+    { access = "read-write", path = "./deployments" },
+    { access = "read", path = "./" }
+]
+
+# RPC endpoints for Celo networks
+[rpc_endpoints]
+alfajores = "${ALFAJORES_RPC_URL}"
+sepolia = "${SEPOLIA_RPC_URL}"
+celo = "${CELO_RPC_URL}"
+
+# Etherscan API configuration for contract verification
+# Note: Celo networks now use Etherscan API keys
+[etherscan]
+alfajores = { key = "${CELOSCAN_API_KEY}", url = "https://api-alfajores.celoscan.io/api" }
+celo_sepolia = { key = "${CELOSCAN_API_KEY}", url = "https://api.celoscan.io/api" }
+celo = { key = "${CELOSCAN_API_KEY}", url = "https://api.celoscan.io/api" }
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

@@ -15,3 +15,13 @@ node_modules
 
 # Hardhat Ignition default folder for deployments against a local node
 ignition/deployments/chain-31337
+
+# Foundry files
+/broadcast
+/out
+/cache_forge
+
+# Keep deployment artifacts but ignore sensitive broadcast logs
+!/deployments
+/deployments/*.json
+!/deployments/*-latest.json

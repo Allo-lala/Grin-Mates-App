@@ -1,15 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import { Moon, Sun, Bell, Lock, HelpCircle, FileText } from 'lucide-react';
+import { Moon, Sun, Bell, Lock, HelpCircle, FileText, ExternalLink, Copy } from 'lucide-react';
 import { MobileLayout } from '@/components/layout/mobile-layout';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import { useTheme } from 'next-themes';
+import { getContractInfo, getCurrentNetwork } from '@/lib/contracts';
 
 export default function SettingsScreen() {
   const { theme, setTheme } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [biometric, setBiometric] = useState(false);
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+
+  // Get contract information
+  const contractInfo = getContractInfo();
+  const currentNetwork = getCurrentNetwork();
+
+  const handleCopyAddress = (address: string, type: string) => {
+    navigator.clipboard.writeText(address);
+    setCopiedAddress(`${type}-${address}`);
+    setTimeout(() => setCopiedAddress(null), 2000);
+  };
 
   const settings = [
     {
@@ -113,6 +125,90 @@ export default function SettingsScreen() {
               </button>
             );
           })}
+        </ResponsiveContainer>
+
+        {/* Contract Information */}
+        <ResponsiveContainer maxWidth="md" padding="md" className="py-4">
+          <div className="rounded-lg border border-muted bg-background p-6 space-y-4">
+            <h2 className="text-lg font-semibold text-foreground">Smart Contract Info</h2>
+            
+            <div className="space-y-3">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Network</p>
+                <p className="text-sm text-foreground">{contractInfo.network}</p>
+              </div>
+              
+              {'error' in contractInfo ? (
+                <div className="rounded-lg bg-red-50 border border-red-200 p-3">
+                  <p className="text-sm text-red-600">{contractInfo.error}</p>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">ProofOfHuman Contract</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-xs font-mono text-foreground break-all">
+                        {contractInfo.proofOfHuman.address}
+                      </p>
+                      <button
+                        onClick={() => handleCopyAddress(contractInfo.proofOfHuman.address, 'contract')}
+                        className="flex-shrink-0 p-1 hover:bg-muted rounded"
+                      >
+                        <Copy className="h-3 w-3 text-muted-foreground" />
+                      </button>
+                      <a
+                        href={contractInfo.proofOfHuman.explorerUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-shrink-0 p-1 hover:bg-muted rounded"
+                      >
+                        <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                      </a>
+                    </div>
+                    {copiedAddress === `contract-${contractInfo.proofOfHuman.address}` && (
+                      <p className="text-xs text-green-600 mt-1">Copied!</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {currentNetwork === 'celo' ? 'Self Protocol Hub' : 'Hub Contract (Mock)'}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-xs font-mono text-foreground break-all">
+                        {contractInfo.hub.address}
+                      </p>
+                      <button
+                        onClick={() => handleCopyAddress(contractInfo.hub.address, 'hub')}
+                        className="flex-shrink-0 p-1 hover:bg-muted rounded"
+                      >
+                        <Copy className="h-3 w-3 text-muted-foreground" />
+                      </button>
+                      <a
+                        href={contractInfo.hub.explorerUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-shrink-0 p-1 hover:bg-muted rounded"
+                      >
+                        <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                      </a>
+                    </div>
+                    {copiedAddress === `hub-${contractInfo.hub.address}` && (
+                      <p className="text-xs text-green-600 mt-1">Copied!</p>
+                    )}
+                  </div>
+
+                  {currentNetwork !== 'celo' && (
+                    <div className="rounded-lg bg-blue-50 border border-blue-200 p-3">
+                      <p className="text-xs text-blue-600">
+                        ⚠️ Using mock hub for testing. Replace with real Self Protocol hub for production.
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
         </ResponsiveContainer>
 
         {/* App info */}

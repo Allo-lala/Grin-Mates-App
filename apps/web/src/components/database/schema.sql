@@ -52,9 +52,29 @@ CREATE TABLE IF NOT EXISTS transactions (
   completed_at TIMESTAMP
 );
 
+-- Verification Sessions table (Self Protocol KYC)
+CREATE TABLE IF NOT EXISTS verification_sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  wallet_address VARCHAR(42) NOT NULL,
+  status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'verified', 'failed', 'expired')),
+  session_id VARCHAR(255) NOT NULL UNIQUE,
+  transaction_hash VARCHAR(66),
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  completed_at TIMESTAMP,
+  expires_at TIMESTAMP,
+  failure_reason TEXT,
+  metadata JSONB,
+  CONSTRAINT fk_wallet FOREIGN KEY (wallet_address) REFERENCES users(wallet_address) ON DELETE CASCADE
+);
+
 -- Indexes
 CREATE INDEX idx_users_wallet ON users(wallet_address);
 CREATE INDEX idx_kyc_user ON kyc_submissions(user_id);
 CREATE INDEX idx_balances_user ON balances(user_id);
 CREATE INDEX idx_transactions_user ON transactions(user_id);
 CREATE INDEX idx_transactions_created ON transactions(created_at);
+CREATE INDEX idx_verification_wallet_address ON verification_sessions(wallet_address);
+CREATE INDEX idx_verification_session_id ON verification_sessions(session_id);
+CREATE INDEX idx_verification_status ON verification_sessions(status);
+CREATE INDEX idx_verification_created_at ON verification_sessions(created_at DESC);

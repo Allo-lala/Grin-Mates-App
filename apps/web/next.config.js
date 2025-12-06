@@ -10,6 +10,21 @@ const nextConfig = {
     minimumCacheTTL: 60,
   },
   
+  // Headers for Privy authentication
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'self' https://auth.privy.io https://*.privy.io",
+          },
+        ],
+      },
+    ];
+  },
+  
   // Performance optimizations
   compress: true,
   poweredByHeader: false,

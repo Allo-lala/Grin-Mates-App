@@ -47,6 +47,21 @@ body {
   .touch-feedback-subtle {
     @apply transition-all duration-100 active:scale-[0.99] active:opacity-95;
   }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Apply touch feedback to all interactive elements */
