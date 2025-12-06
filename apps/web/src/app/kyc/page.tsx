@@ -8,8 +8,8 @@ import {
   SelfAppBuilder,
   type SelfApp,
   countries,
+  getUniversalLink,
 } from '@selfxyz/qrcode';
-import { getUniversalLink } from '@selfxyz/common';
 import AuthGuard from '@/components/auth-guard';
 
 export default function KYCPage() {

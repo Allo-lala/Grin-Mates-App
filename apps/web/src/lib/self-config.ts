@@ -5,7 +5,7 @@
  * including environment variable validation and typed configuration objects.
  */
 
-import type { Country3LetterCode } from '@selfxyz/common';
+import { countries } from '@selfxyz/qrcode';
 
 export type EndpointType = 'celo' | 'staging_celo' | 'https' | 'staging_https';
 
@@ -18,7 +18,7 @@ export type EndpointType = 'celo' | 'staging_celo' | 'https' | 'staging_https';
 export interface DisclosureRequirements {
   minimumAge?: number;                 // Minimum age requirement (Requirement 2.1)
   ofac?: boolean;                      // OFAC sanctions screening (Requirement 2.3)
-  excludedCountries?: Country3LetterCode[];  // Excluded country codes (Requirement 2.2)
+  excludedCountries?: string[];        // Excluded country codes (Requirement 2.2)
   name?: boolean;                      // Request name disclosure (Requirement 2.4, 2.5)
   issuing_state?: boolean;             // Request issuing state (Requirement 2.4, 2.5)
   nationality?: boolean;               // Request nationality (Requirement 2.4, 2.5)
@@ -34,7 +34,7 @@ export interface SelfConfig {
   endpoint: string;
   endpointType: EndpointType;
   logoUrl: string;
-  excludedCountries: Country3LetterCode[];
+  excludedCountries: string[];
   minimumAge: number;
   version: number;
   userIdType: 'hex' | 'uuid';
@@ -44,26 +44,26 @@ export interface SelfConfig {
 
 /**
  * List of excluded countries based on regulatory requirements
- * Country codes follow ISO 3166-1 alpha-3 standard
+ * Using Self Protocol's countries constants
  */
-export const EXCLUDED_COUNTRIES: Country3LetterCode[] = [
-  'AFG', // Afghanistan
-  'BLR', // Belarus
-  'CAF', // Central African Republic
-  'CUB', // Cuba
-  'COD', // Democratic Republic of Congo
-  'IRN', // Iran
-  'IRQ', // Iraq
-  'LBN', // Lebanon
-  'LBY', // Libya
-  'PRK', // North Korea
-  'SOM', // Somalia
-  'SSD', // South Sudan
-  'SDN', // Sudan
-  'SYR', // Syria
-  'VEN', // Venezuela
-  'YEM', // Yemen
-  'ZWE', // Zimbabwe
+export const EXCLUDED_COUNTRIES: string[] = [
+  countries.AFGHANISTAN,
+  countries.BELARUS,
+  countries.CENTRAL_AFRICAN_REPUBLIC,
+  countries.CUBA,
+  countries.DR_CONGO, // Democratic Republic of Congo
+  countries.IRAN,
+  countries.IRAQ,
+  countries.LEBANON,
+  countries.LIBYA,
+  countries.NORTH_KOREA,
+  countries.SOMALIA,
+  countries.SOUTH_SUDAN,
+  countries.SUDAN,
+  countries.SYRIAN_ARAB_REPUBLIC, // Syria
+  countries.VENEZUELA,
+  countries.YEMEN,
+  countries.ZIMBABWE,
 ];
 
 /**

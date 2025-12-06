@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { SelfAppBuilder, getUniversalLink, type SelfApp } from '@selfxyz/common';
-import type { Country3LetterCode } from '@selfxyz/common';
+import { SelfAppBuilder, getUniversalLink, type SelfApp } from '@selfxyz/qrcode';
 import { getSelfConfig, type SelfConfig, type DisclosureRequirements } from '../self-config';
 import { logger } from '../logger';
 
@@ -11,7 +10,7 @@ import { logger } from '../logger';
  */
 export interface UseSelfProtocolConfig {
   walletAddress: string;
-  excludedCountries?: Country3LetterCode[];
+  excludedCountries?: string[];
   minimumAge?: number;
 }
 
@@ -90,6 +89,7 @@ export function useSelfProtocol(config: UseSelfProtocolConfig): UseSelfProtocolR
         userId: walletAddress,
         endpointType: selfConfig.endpointType,
         userIdType: selfConfig.userIdType,
+        userDefinedData: `Verification for ${walletAddress}`, // Add userDefinedData like workshop example
         disclosures: disclosures as any, // Type cast to handle version compatibility
       };
       

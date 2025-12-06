@@ -13,7 +13,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { SelfApp } from '@selfxyz/common';
+import { SelfApp } from '@selfxyz/qrcode';
 import { Smartphone, RefreshCw, AlertCircle } from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Button } from '@/components/ui/button';
