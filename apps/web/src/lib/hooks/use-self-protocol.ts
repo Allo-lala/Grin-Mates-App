@@ -90,7 +90,7 @@ export function useSelfProtocol(config: UseSelfProtocolConfig): UseSelfProtocolR
         userId: walletAddress,
         endpointType: selfConfig.endpointType,
         userIdType: selfConfig.userIdType,
-        disclosures,
+        disclosures: disclosures as any, // Type cast to handle version compatibility
       });
       
       // Build the Self app instance
