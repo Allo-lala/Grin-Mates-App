@@ -81,7 +81,7 @@ export function useSelfProtocol(config: UseSelfProtocolConfig): UseSelfProtocolR
       
       // Initialize SelfAppBuilder with configuration
       // Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8
-      const builder = new SelfAppBuilder({
+      const builderConfig: any = {
         version: selfConfig.version,
         appName: selfConfig.appName,
         scope: selfConfig.scopeSeed,
@@ -91,7 +91,14 @@ export function useSelfProtocol(config: UseSelfProtocolConfig): UseSelfProtocolR
         endpointType: selfConfig.endpointType,
         userIdType: selfConfig.userIdType,
         disclosures: disclosures as any, // Type cast to handle version compatibility
-      });
+      };
+      
+      // Add contract address for on-chain verification
+      if (selfConfig.contractAddress) {
+        builderConfig.to = selfConfig.contractAddress;
+      }
+      
+      const builder = new SelfAppBuilder(builderConfig);
       
       // Build the Self app instance
       const selfApp = builder.build();

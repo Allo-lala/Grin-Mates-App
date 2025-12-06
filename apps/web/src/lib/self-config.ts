@@ -39,6 +39,7 @@ export interface SelfConfig {
   version: number;
   userIdType: 'hex' | 'uuid';
   disclosures: DisclosureRequirements;
+  contractAddress?: string; // Contract address for on-chain verification
 }
 
 /**
@@ -196,6 +197,10 @@ export function getSelfConfig(): SelfConfig {
     });
   }
   
+  // Get contract address from environment or use deployed address
+  const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || 
+    (endpointType === 'staging_celo' ? '0x0a81e30572F209aFC2664FcBD0BB9c403057d9a8' : undefined);
+  
   return {
     appName: process.env.NEXT_PUBLIC_SELF_APP_NAME!,
     scopeSeed: process.env.NEXT_PUBLIC_SELF_SCOPE_SEED!,
@@ -207,5 +212,6 @@ export function getSelfConfig(): SelfConfig {
     version: 2,
     userIdType: 'hex',
     disclosures: DEFAULT_DISCLOSURES,
+    contractAddress,
   };
 }
