@@ -78,7 +78,7 @@ export function useSelfProtocol(config: UseSelfProtocolConfig): UseSelfProtocolR
         excludedCountries: excludedCountries ?? selfConfig.disclosures.excludedCountries,
       };
       
-      // Initialize SelfAppBuilder with configuration matching workshop example
+      // Initialize SelfAppBuilder with configuration for OFF-CHAIN verification
       // Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8
       const builderConfig: any = {
         version: 2,
@@ -87,7 +87,7 @@ export function useSelfProtocol(config: UseSelfProtocolConfig): UseSelfProtocolR
         endpoint: selfConfig.endpoint,
         logoBase64: selfConfig.logoUrl,
         userId: walletAddress,
-        endpointType: 'staging_celo', // Force staging_celo like workshop
+        endpointType: 'staging_https', // OFF-CHAIN verification (no smart contract needed)
         userIdType: 'hex',
         userDefinedData: `Verification for ${walletAddress}`,
         disclosures: {
