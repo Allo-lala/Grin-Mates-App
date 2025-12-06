@@ -93,9 +93,10 @@ export function useSelfProtocol(config: UseSelfProtocolConfig): UseSelfProtocolR
         disclosures: disclosures as any, // Type cast to handle version compatibility
       };
       
-      // Add contract address for on-chain verification
-      if (selfConfig.contractAddress) {
-        builderConfig.to = selfConfig.contractAddress;
+      // Debug log in development
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Self Protocol] Builder config:', builderConfig);
+        console.log('[Self Protocol] Contract address available:', selfConfig.contractAddress);
       }
       
       const builder = new SelfAppBuilder(builderConfig);
