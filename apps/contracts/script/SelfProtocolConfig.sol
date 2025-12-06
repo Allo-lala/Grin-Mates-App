@@ -30,15 +30,11 @@ library SelfProtocolConfig {
      * @notice Identity Verification Hub V2 address for Celo Sepolia testnet
      * @dev Chain ID: 11142220
      * @dev Source: Self Protocol official documentation
-     * @dev Last verified: [TO BE VERIFIED]
+     * @dev Last verified: December 2024
      * 
-     * TODO: Verify this address from official Self Protocol documentation
-     * Documentation: https://docs.selfprotocol.com/contracts/deployments
-     * 
-     * TEMPORARY: Using a test address for deployment testing
-     * This needs to be replaced with the actual Self Protocol hub address
+     * This is the official Self Protocol Identity Verification Hub V2 address for Celo Sepolia
      */
-    address public constant SEPOLIA_HUB_V2 = 0x1234567890123456789012345678901234567890; // TEMPORARY TEST ADDRESS
+    address public constant SEPOLIA_HUB_V2 = 0x16ECBA51e18a4a7e61fdC417f0d47AFEeDfbed74;
     
     /**
      * @notice Identity Verification Hub V2 address for Celo mainnet

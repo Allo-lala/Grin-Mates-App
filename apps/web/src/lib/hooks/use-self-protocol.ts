@@ -78,19 +78,26 @@ export function useSelfProtocol(config: UseSelfProtocolConfig): UseSelfProtocolR
         excludedCountries: excludedCountries ?? selfConfig.disclosures.excludedCountries,
       };
       
-      // Initialize SelfAppBuilder with configuration
+      // Initialize SelfAppBuilder with configuration matching workshop example
       // Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8
       const builderConfig: any = {
-        version: selfConfig.version,
+        version: 2,
         appName: selfConfig.appName,
         scope: selfConfig.scopeSeed,
         endpoint: selfConfig.endpoint,
         logoBase64: selfConfig.logoUrl,
         userId: walletAddress,
-        endpointType: selfConfig.endpointType,
-        userIdType: selfConfig.userIdType,
-        userDefinedData: `Verification for ${walletAddress}`, // Add userDefinedData like workshop example
-        disclosures: disclosures as any, // Type cast to handle version compatibility
+        endpointType: 'staging_celo', // Force staging_celo like workshop
+        userIdType: 'hex',
+        userDefinedData: `Verification for ${walletAddress}`,
+        disclosures: {
+          minimumAge: 18,
+          ofac: true,
+          excludedCountries: excludedCountries,
+          name: true,
+          nationality: true,
+          date_of_birth: true,
+        },
       };
       
       // Debug log in development
