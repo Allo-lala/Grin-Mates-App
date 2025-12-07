@@ -182,7 +182,7 @@ export function getSelfConfig(): SelfConfig {
   
   // Get contract address from environment or use deployed address
   const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || 
-    (endpointType === 'staging_celo' ? '0xdCb5C103D8bFd00b3c7b5a131C58a3EA14e1668b' : undefined);
+    (endpointType === 'staging_celo' ? '0x2b416819bfd0c4e3b6f59a3fd6347485f0d09d43' : undefined);
   
   return {
     appName: process.env.NEXT_PUBLIC_SELF_APP_NAME!,
