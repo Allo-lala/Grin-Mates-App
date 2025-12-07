@@ -40,8 +40,9 @@ contract ProofOfHuman is SelfVerificationRoot {
         SelfVerificationRoot(identityVerificationHubV2Address, scopeSeed)
     {
         verificationConfig = SelfUtils.formatVerificationConfigV2(_verificationConfig);
-        verificationConfigId =
-            IIdentityVerificationHubV2(identityVerificationHubV2Address).setVerificationConfigV2(verificationConfig);
+        // Generate the config ID locally without calling the hub
+        // The hub will validate this config when verification happens
+        verificationConfigId = keccak256(abi.encode(verificationConfig));
     }
 
     /**

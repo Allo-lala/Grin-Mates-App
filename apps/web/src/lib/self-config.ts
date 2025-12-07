@@ -45,25 +45,15 @@ export interface SelfConfig {
 /**
  * List of excluded countries based on regulatory requirements
  * Using Self Protocol's countries constants
+ * IMPORTANT: This MUST match the contract deployment in DeployProofOfHuman.s.sol
  */
 export const EXCLUDED_COUNTRIES: string[] = [
-  countries.AFGHANISTAN,
-  countries.BELARUS,
-  countries.CENTRAL_AFRICAN_REPUBLIC,
-  countries.CUBA,
-  countries.DR_CONGO, // Democratic Republic of Congo
-  countries.IRAN,
-  countries.IRAQ,
-  countries.LEBANON,
-  countries.LIBYA,
-  countries.NORTH_KOREA,
-  countries.SOMALIA,
-  countries.SOUTH_SUDAN,
-  countries.SUDAN,
-  countries.SYRIAN_ARAB_REPUBLIC, // Syria
-  countries.VENEZUELA,
-  countries.YEMEN,
-  countries.ZIMBABWE,
+  countries.CUBA,           // CU
+  countries.IRAN,           // IR
+  countries.NORTH_KOREA,    // KP
+  countries.SYRIAN_ARAB_REPUBLIC, // SY
+  countries.RUSSIA,         // RU
+  countries.BELARUS,        // BY
 ];
 
 /**
@@ -152,7 +142,7 @@ export function validateSelfConfig(): boolean {
  */
 export const DEFAULT_DISCLOSURES: DisclosureRequirements = {
   minimumAge: 18,                      // Requirement 2.1: Users must be at least 18 years old
-  ofac: true,                          // Requirement 2.3: OFAC sanctions screening enabled
+  ofac: false,                         // Requirement 2.3: OFAC sanctions screening disabled (matches contract)
   excludedCountries: EXCLUDED_COUNTRIES, // Requirement 2.2: Exclude sanctioned/restricted countries
   // Optional identity attributes (Requirements 2.4, 2.5)
   name: true,                          // Request user's full name

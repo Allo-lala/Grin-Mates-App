@@ -78,7 +78,7 @@ export function useSelfProtocol(config: UseSelfProtocolConfig): UseSelfProtocolR
         excludedCountries: excludedCountries ?? selfConfig.disclosures.excludedCountries,
       };
       
-      // Initialize SelfAppBuilder with configuration for OFF-CHAIN verification
+      // Initialize SelfAppBuilder with configuration
       // Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8
       const builderConfig: any = {
         version: 2,
@@ -87,23 +87,24 @@ export function useSelfProtocol(config: UseSelfProtocolConfig): UseSelfProtocolR
         endpoint: selfConfig.endpoint,
         logoBase64: selfConfig.logoUrl,
         userId: walletAddress,
-        endpointType: 'staging_https', // OFF-CHAIN verification (no smart contract needed)
-        userIdType: 'hex',
+        endpointType: selfConfig.endpointType, // Use configured endpoint type (on-chain or off-chain)
+        userIdType: selfConfig.userIdType,
         userDefinedData: `Verification for ${walletAddress}`,
         disclosures: {
-          minimumAge: 18,
-          ofac: true,
-          excludedCountries: excludedCountries,
-          name: true,
-          nationality: true,
-          date_of_birth: true,
+          minimumAge: disclosures.minimumAge ?? 18,
+          ofac: disclosures.ofac ?? true,
+          excludedCountries: disclosures.excludedCountries,
+          name: disclosures.name ?? true,
+          nationality: disclosures.nationality ?? true,
+          date_of_birth: disclosures.date_of_birth ?? true,
         },
       };
       
       // Debug log in development
       if (process.env.NODE_ENV === 'development') {
         console.log('[Self Protocol] Builder config:', builderConfig);
-        console.log('[Self Protocol] Contract address available:', selfConfig.contractAddress);
+        console.log('[Self Protocol] Endpoint type:', selfConfig.endpointType);
+        console.log('[Self Protocol] Contract address:', selfConfig.endpoint);
       }
       
       const builder = new SelfAppBuilder(builderConfig);

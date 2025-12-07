@@ -23,9 +23,10 @@ contract DeployProofOfHuman is BaseScript {
         address hubAddress = vm.envAddress("IDENTITY_VERIFICATION_HUB_ADDRESS");
         string memory scopeSeed = vm.envString("SCOPE_SEED");
         string[] memory forbiddenCountries = new string[](6);
-        string[] memory disclosures = new string[](3);
+        string[] memory disclosures = new string[](0); // Empty array - disclosures are optional
         
-        // Make sure this is the same as frontend config (matching grin-mates requirements)
+        // IMPORTANT: This MUST match the frontend config in apps/web/src/lib/self-config.ts
+        // Using the 6 countries from the workshop that are known to work
         forbiddenCountries[0] = "CU"; // Cuba
         forbiddenCountries[1] = "IR"; // Iran
         forbiddenCountries[2] = "KP"; // North Korea
@@ -33,15 +34,10 @@ contract DeployProofOfHuman is BaseScript {
         forbiddenCountries[4] = "RU"; // Russia
         forbiddenCountries[5] = "BY"; // Belarus
         
-        // Required disclosures
-        disclosures[0] = "dateOfBirth";
-        disclosures[1] = "nationality";
-        disclosures[2] = "issuingState";
-        
         SelfUtils.UnformattedVerificationConfigV2 memory verificationConfig = SelfUtils.UnformattedVerificationConfigV2({
             minimumAge: 18,
             excludedCountries: forbiddenCountries,
-            ofacScreening: true,
+            ofacScreening: false,
             disclosures: disclosures
         });
 

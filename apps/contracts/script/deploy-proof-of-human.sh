@@ -42,7 +42,7 @@ for var in "${REQUIRED_VARS[@]}"; do
 done
 
 # Set defaults for optional variables
-SCOPE_SEED=${SCOPE_SEED:-"self-workshop"}
+SCOPE_SEED=${SCOPE_SEED:-"grin-mates"}
 NETWORK=${NETWORK:-"celo-sepolia"}
 
 # Network configuration
@@ -163,10 +163,10 @@ case "$NETWORK" in
 esac
 
 # Encode constructor arguments for verification
-CONSTRUCTOR_ARGS=$(cast abi-encode "constructor(address,string,(uint256,string[],bool))" \
+CONSTRUCTOR_ARGS=$(cast abi-encode "constructor(address,string,(uint256,string[],bool,string[]))" \
     $IDENTITY_VERIFICATION_HUB_ADDRESS \
     "$SCOPE_SEED" \
-    "(18,[\"USA\"],false)")
+    "(18,[\"CU\",\"IR\",\"KP\",\"SY\",\"RU\",\"BY\"],true,[])")
 
 # For Celo Sepolia, verify on Blockscout only (Celoscan Sepolia has verification issues)
 if [ "$NETWORK" = "celo-sepolia" ]; then
@@ -261,7 +261,7 @@ echo "| Hub Address | $IDENTITY_VERIFICATION_HUB_ADDRESS |"
 echo "| RPC URL | $RPC_URL |"
 echo "| Block Explorer | $BLOCK_EXPLORER_URL |"
 echo "| Scope Seed | $SCOPE_SEED |"
-echo "| Verification Config | olderThan: 18, forbiddenCountries: [USA], ofacEnabled: false |"
+echo "| Verification Config | minimumAge: 18, excludedCountries: [CU,IR,KP,SY,RU,BY], ofacScreening: true |"
 echo
 print_success "Deployment Complete!"
 echo "1. ✅ Contract deployed successfully"
