@@ -1,21 +1,3 @@
-/**
- * Self KYC Screen Component
- * 
- * Main orchestrator component for Self Protocol identity verification flow.
- * 
- * This component:
- * - Integrates useSelfProtocol hook for QR generation
- * - Integrates useVerificationStatus hook for status polling
- * - Uses SelfQRDisplay component to show QR code
- * - Displays verification status states (pending, verified, failed)
- * - Handles verification completion with success toast
- * - Handles verification failure with error toast
- * - Implements redirect to dashboard on successful verification
- * - Stores verification completion in localStorage
- * 
- * Requirements: 1.1, 1.2, 1.3, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 6.1, 6.2, 6.3, 6.4
- */
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -123,7 +105,7 @@ export default function SelfKYCScreen({ walletAddress }: SelfKYCScreenProps) {
       // Requirement 4.3: Handle verification completion with success toast
       toast.success(
         'Identity Verified!',
-        'Your identity has been successfully verified. Redirecting to dashboard...'
+        'Your identity has been successfully verified. Redirecting you to Grin Mates...'
       );
       
       // Requirement 4.4: Redirect to dashboard on successful verification

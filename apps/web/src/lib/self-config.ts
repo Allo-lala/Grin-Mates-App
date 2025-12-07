@@ -134,17 +134,13 @@ export function validateSelfConfig(): boolean {
  * Requirements: 2.1, 2.2, 2.3, 2.4, 2.5
  */
 export const DEFAULT_DISCLOSURES: DisclosureRequirements = {
-  minimumAge: 18,                      // Requirement 2.1: Users must be at least 18 years old
+  minimumAge: 18,                      // Users must be at least 18 years old
   ofac: false,                         // Requirement 2.3: OFAC sanctions screening disabled (matches contract)
   excludedCountries: EXCLUDED_COUNTRIES, // Requirement 2.2: Exclude sanctioned/restricted countries
   // Optional identity attributes (Requirements 2.4, 2.5)
   name: false,                          // Request user's full name
   nationality: false,                   // Request user's nationality
   date_of_birth: true,                 // Request user's date of birth
-  issuing_state: false,                // Optional: issuing state
-  passport_number: false,              // Optional: passport number (privacy consideration)
-  gender: false,                       // Optional: gender
-  expiry_date: false,                  // Optional: document expiry date
 };
 
 /**

@@ -11,6 +11,7 @@ import {
   getUniversalLink,
 } from '@selfxyz/qrcode';
 import AuthGuard from '@/components/auth-guard';
+import { ethers } from "ethers";
 
 export default function KYCPage() {
   const router = useRouter();
@@ -21,29 +22,20 @@ export default function KYCPage() {
   const [toastMessage, setToastMessage] = useState('');
   const [selfApp, setSelfApp] = useState<SelfApp | null>(null);
   const [universalLink, setUniversalLink] = useState('');
+  const [userId] = useState(ethers.ZeroAddress);
   
   // Get wallet address from Privy user
   const walletAddress = user?.wallet?.address || '';
 
   // Use useMemo to cache the array to avoid creating a new array on each render
+  // IMPORTANT: Must match contract deployment (6 countries)
   const excludedCountries = useMemo(() => [
-    countries.AFGHANISTAN,
-    countries.BELARUS,
-    countries.CENTRAL_AFRICAN_REPUBLIC,
-    countries.CUBA,
-    countries.DR_CONGO, // Democratic Republic of Congo
-    countries.IRAN,
-    countries.IRAQ,
-    countries.LEBANON,
-    countries.LIBYA,
-    countries.NORTH_KOREA,
-    countries.SOMALIA,
-    countries.SOUTH_SUDAN,
-    countries.SUDAN,
-    countries.SYRIAN_ARAB_REPUBLIC, // Syria
-    countries.VENEZUELA,
-    countries.YEMEN,
-    countries.ZIMBABWE,
+    countries.CUBA,           // CU
+    countries.IRAN,           // IR
+    countries.NORTH_KOREA,    // KP
+    countries.SYRIAN_ARAB_REPUBLIC, // SY
+    countries.RUSSIA,         // RU
+    countries.BELARUS,        // BY
   ], []);
 
   // Use useEffect to ensure code only executes on the client side
@@ -56,16 +48,18 @@ export default function KYCPage() {
         appName: process.env.NEXT_PUBLIC_SELF_APP_NAME,
         scope: process.env.NEXT_PUBLIC_SELF_SCOPE_SEED,
         endpoint: `${process.env.NEXT_PUBLIC_SELF_ENDPOINT}`,
-        logoBase64: process.env.NEXT_PUBLIC_SELF_LOGO_URL || 'https://i.postimg.cc/mrmVf9hm/self.png',
-        userId: walletAddress,
-        endpointType: 'staging_celo',
+        logoBase64: "https://i.postimg.cc/mrmVf9hm/self.png",
+        userId: userId,
         userIdType: 'hex',
+        endpointType: 'staging_celo',
+        userDefinedData:"Grin Mates",
+
         disclosures: {
           minimumAge: 18,
-          ofac: true,
+          ofac: false, // Must match contract (OFAC disabled)
           excludedCountries: excludedCountries,
-          name: true,
-          nationality: true,
+          name: false,
+          nationality: false,
           date_of_birth: true,
         },
       }).build();
