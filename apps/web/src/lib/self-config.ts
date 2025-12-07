@@ -1,10 +1,3 @@
-/**
- * Self Protocol Configuration Module
- * 
- * This module provides configuration management for Self Protocol integration,
- * including environment variable validation and typed configuration objects.
- */
-
 import { countries } from '@selfxyz/qrcode';
 
 export type EndpointType = 'celo' | 'staging_celo' | 'https' | 'staging_https';
@@ -145,8 +138,8 @@ export const DEFAULT_DISCLOSURES: DisclosureRequirements = {
   ofac: false,                         // Requirement 2.3: OFAC sanctions screening disabled (matches contract)
   excludedCountries: EXCLUDED_COUNTRIES, // Requirement 2.2: Exclude sanctioned/restricted countries
   // Optional identity attributes (Requirements 2.4, 2.5)
-  name: true,                          // Request user's full name
-  nationality: true,                   // Request user's nationality
+  name: false,                          // Request user's full name
+  nationality: false,                   // Request user's nationality
   date_of_birth: true,                 // Request user's date of birth
   issuing_state: false,                // Optional: issuing state
   passport_number: false,              // Optional: passport number (privacy consideration)
@@ -189,7 +182,7 @@ export function getSelfConfig(): SelfConfig {
   
   // Get contract address from environment or use deployed address
   const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || 
-    (endpointType === 'staging_celo' ? '0x0a81e30572F209aFC2664FcBD0BB9c403057d9a8' : undefined);
+    (endpointType === 'staging_celo' ? '0xdCb5C103D8bFd00b3c7b5a131C58a3EA14e1668b' : undefined);
   
   return {
     appName: process.env.NEXT_PUBLIC_SELF_APP_NAME!,
