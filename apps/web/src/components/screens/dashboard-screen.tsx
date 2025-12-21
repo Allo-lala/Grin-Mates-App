@@ -21,19 +21,13 @@ export default function DashboardScreen() {
   // Get wallet address from Privy user
   const walletAddress = user?.wallet?.address || user?.email?.address || 'Unknown';
   
-  // Get display name from KYC data or use email/wallet
-  const kycData = typeof window !== 'undefined' ? localStorage.getItem('kyc_data') : null;
+  // Get display name from user data
   let displayName = 'User';
   
-  if (kycData) {
-    try {
-      const parsed = JSON.parse(kycData);
-      displayName = parsed.personal?.firstName || 'User';
-    } catch (error) {
-      console.error('Error parsing KYC data:', error);
-    }
-  } else if (user?.email?.address) {
+  if (user?.email?.address) {
     displayName = user.email.address.split('@')[0];
+  } else if (user?.wallet?.address) {
+    displayName = `${user.wallet.address.slice(0, 6)}...${user.wallet.address.slice(-4)}`;
   }
 
   const assets = [

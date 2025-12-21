@@ -288,6 +288,153 @@ class Logger {
       endpoint,
     });
   }
+
+  /**
+   * Log configuration validation event
+   * Requirement 4.1: Log complete configuration validation
+   */
+  configValidation(
+    isValid: boolean,
+    errors: string[],
+    warnings: string[],
+    context?: LogContext
+  ): void {
+    if (isValid) {
+      this.info('Configuration validation passed', {
+        event: 'config_validation',
+        status: 'valid',
+        warnings: warnings.length > 0 ? warnings : undefined,
+        ...context,
+      });
+    } else {
+      this.error('Configuration validation failed', undefined, {
+        event: 'config_validation',
+        status: 'invalid',
+        errors,
+        warnings,
+        ...context,
+      });
+    }
+  }
+
+  /**
+   * Log proof generation status
+   * Requirement 4.2: Log proof generation status
+   */
+  proofGeneration(
+    walletAddress: string,
+    sessionId: string,
+    status: 'started' | 'completed' | 'failed',
+    context?: LogContext
+  ): void {
+    const message = `Proof generation ${status}`;
+    
+    if (status === 'failed') {
+      this.error(message, undefined, {
+        event: 'proof_generation',
+        walletAddress,
+        sessionId,
+        status,
+        ...context,
+      });
+    } else {
+      this.info(message, {
+        event: 'proof_generation',
+        walletAddress,
+        sessionId,
+        status,
+        ...context,
+      });
+    }
+  }
+
+  /**
+   * Log on-chain proof submission
+   * Requirement 4.3: Log transaction hash and contract address
+   */
+  proofSubmitted(
+    walletAddress: string,
+    sessionId: string,
+    transactionHash: string,
+    contractAddress: string,
+    context?: LogContext
+  ): void {
+    this.info('Proof submitted on-chain', {
+      event: 'proof_submitted',
+      walletAddress,
+      sessionId,
+      transactionHash,
+      contractAddress,
+      ...context,
+    });
+  }
+
+  /**
+   * Log verification error with detailed information
+   * Requirement 4.4: Log error code, message, and relevant configuration details
+   */
+  verificationError(
+    walletAddress: string,
+    sessionId: string,
+    errorCode: string | number,
+    errorMessage: string,
+    error?: Error,
+    context?: LogContext
+  ): void {
+    this.error('Verification error occurred', error, {
+      event: 'verification_error',
+      walletAddress,
+      sessionId,
+      errorCode,
+      errorMessage,
+      ...context,
+    });
+  }
+
+  /**
+   * Log step-by-step verification process
+   * Requirement 4.5: Provide step-by-step visibility into verification process
+   */
+  verificationStep(
+    step: string,
+    walletAddress: string,
+    sessionId: string,
+    context?: LogContext
+  ): void {
+    this.debug(`Verification step: ${step}`, {
+      event: 'verification_step',
+      step,
+      walletAddress,
+      sessionId,
+      ...context,
+    });
+  }
+
+  /**
+   * Log health check results
+   * Requirement 4.1: Log configuration health check results
+   */
+  healthCheck(
+    healthy: boolean,
+    checks: Record<string, { passed: boolean; message: string }>,
+    context?: LogContext
+  ): void {
+    if (healthy) {
+      this.info('Health check passed', {
+        event: 'health_check',
+        healthy,
+        checks,
+        ...context,
+      });
+    } else {
+      this.warn('Health check failed', {
+        event: 'health_check',
+        healthy,
+        checks,
+        ...context,
+      });
+    }
+  }
 }
 
 // Export singleton instance

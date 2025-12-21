@@ -16,15 +16,9 @@ export default function Home() {
       return;
     }
 
-    // If user is authenticated, check KYC status and redirect accordingly
+    // If user is authenticated, redirect directly to dashboard
     if (authenticated) {
-      const kycCompleted = localStorage.getItem('kyc_completed') === 'true';
-      
-      if (kycCompleted) {
-        router.push('/dashboard');
-      } else {
-        router.push('/kyc');
-      }
+      router.push('/dashboard');
     }
   }, [authenticated, ready, router]);
 

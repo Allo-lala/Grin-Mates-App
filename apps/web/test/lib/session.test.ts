@@ -20,19 +20,17 @@ describe('Session Management', () => {
   describe('clearSessionState', () => {
     it('should clear all session-related localStorage items', () => {
       // Setup: Add session data
-      localStorage.setItem('kyc_data', JSON.stringify({ test: 'data' }));
-      localStorage.setItem('kyc_completed', 'true');
-      localStorage.setItem('kycCompleted', 'true');
       localStorage.setItem('privy_session', JSON.stringify({ userId: '123' }));
+      localStorage.setItem('other_data', 'test');
 
       // Execute
       clearSessionState();
 
-      // Verify all items are cleared
-      expect(localStorage.getItem('kyc_data')).toBeNull();
-      expect(localStorage.getItem('kyc_completed')).toBeNull();
-      expect(localStorage.getItem('kycCompleted')).toBeNull();
+      // Verify session items are cleared
       expect(localStorage.getItem('privy_session')).toBeNull();
+      
+      // Verify other items are not affected
+      expect(localStorage.getItem('other_data')).toBe('test');
     });
 
     it('should not throw error if localStorage is empty', () => {

@@ -18,13 +18,8 @@ export default function WelcomeScreen() {
 
   useEffect(() => {
     if (authenticated) {
-      // Check KYC status and redirect
-      const kycCompleted = localStorage.getItem('kyc_completed') === 'true';
-      if (kycCompleted) {
-        router.push('/dashboard');
-      } else {
-        router.push('/kyc');
-      }
+      // Redirect directly to dashboard after authentication
+      router.push('/dashboard');
     }
   }, [authenticated, router]);
 

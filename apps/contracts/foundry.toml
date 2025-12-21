@@ -19,6 +19,8 @@ fs_permissions = [
 alfajores = "${ALFAJORES_RPC_URL}"
 sepolia = "${SEPOLIA_RPC_URL}"
 celo = "${CELO_RPC_URL}"
+celo-mainnet = "https://forno.celo.org"
+celo-sepolia = "https://forno.celo-sepolia.celo-testnet.org/"
 
 # Etherscan API configuration for contract verification
 # Note: Celo networks now use Etherscan API keys
@@ -26,5 +28,5 @@ celo = "${CELO_RPC_URL}"
 alfajores = { key = "${CELOSCAN_API_KEY}", url = "https://api-alfajores.celoscan.io/api" }
 celo_sepolia = { key = "${CELOSCAN_API_KEY}", url = "https://api.celoscan.io/api" }
 celo = { key = "${CELOSCAN_API_KEY}", url = "https://api.celoscan.io/api" }
-
+celo-mainnet = { key = "${CELOSCAN_API_KEY}", url = "https://api.celoscan.io/api" }
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

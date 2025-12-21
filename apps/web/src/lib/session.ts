@@ -10,11 +10,6 @@
  */
 export function clearSessionState(): void {
   try {
-    // Clear KYC data
-    localStorage.removeItem('kyc_data');
-    localStorage.removeItem('kyc_completed');
-    localStorage.removeItem('kycCompleted');
-    
     // Clear Privy session data
     localStorage.removeItem('privy_session');
     

@@ -166,7 +166,7 @@ esac
 CONSTRUCTOR_ARGS=$(cast abi-encode "constructor(address,string,(uint256,string[],bool,string[]))" \
     $IDENTITY_VERIFICATION_HUB_ADDRESS \
     "$SCOPE_SEED" \
-    "(18,[\"CU\",\"IR\",\"KP\",\"SY\",\"RU\",\"BY\"],true,[])")
+    "(18,[\"CU\",\"IR\",\"KP\",\"SY\",\"RU\",\"BY\"],true,[\"nationality\"])")
 
 # For Celo Sepolia, verify on Blockscout only (Celoscan Sepolia has verification issues)
 if [ "$NETWORK" = "celo-sepolia" ]; then
@@ -261,7 +261,7 @@ echo "| Hub Address | $IDENTITY_VERIFICATION_HUB_ADDRESS |"
 echo "| RPC URL | $RPC_URL |"
 echo "| Block Explorer | $BLOCK_EXPLORER_URL |"
 echo "| Scope Seed | $SCOPE_SEED |"
-echo "| Verification Config | minimumAge: 18, excludedCountries: [CU,IR,KP,SY,RU,BY], ofacScreening: true |"
+echo "| Verification Config | minimumAge: 18, excludedCountries: [CU,IR,KP,SY,RU,BY], ofacScreening: true, disclosures: [nationality] |"
 echo
 print_success "Deployment Complete!"
 echo "1. ✅ Contract deployed successfully"

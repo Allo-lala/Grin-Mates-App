@@ -5,7 +5,7 @@ import AuthGuard from '@/components/auth-guard';
 
 export default function ProfilePage() {
   return (
-    <AuthGuard requireKYC={true}>
+    <AuthGuard requireKYC={false}>
       <ProfileScreen />
     </AuthGuard>
   );

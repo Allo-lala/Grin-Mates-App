@@ -13,14 +13,8 @@ export default function WalletConnectionScreen() {
 
   useEffect(() => {
     if (authenticated && user) {
-      // Check if KYC is already completed
-      const kycCompleted = localStorage.getItem('kyc_completed') === 'true';
-      
-      if (kycCompleted) {
-        router.push('/dashboard');
-      } else {
-        router.push('/kyc');
-      }
+      // Redirect directly to dashboard after authentication
+      router.push('/dashboard');
     }
   }, [authenticated, user, router]);
 
