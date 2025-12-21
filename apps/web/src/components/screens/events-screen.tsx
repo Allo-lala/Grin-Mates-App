@@ -29,7 +29,7 @@ export function EventsScreen() {
       time: '9:00 AM',
       location: 'Santa Monica Beach',
       attendees: 45,
-      image: '/beach-cleanup-volunteers.png',
+      image: '/climate.png',
       category: 'cleanup',
       greenPointsReward: 50,
     },
@@ -40,7 +40,7 @@ export function EventsScreen() {
       time: '10:00 AM',
       location: 'Central Park',
       attendees: 32,
-      image: '/tree-planting-community.png',
+      image: '/climate.png',
       category: 'planting',
       greenPointsReward: 75,
     },
@@ -51,7 +51,7 @@ export function EventsScreen() {
       time: '2:00 PM',
       location: 'Community Center',
       attendees: 60,
-      image: '/sustainability-workshop.jpg',
+      image: '/climate.png',
       category: 'education',
       greenPointsReward: 30,
     },
@@ -65,7 +65,7 @@ export function EventsScreen() {
       time: '6:00 PM',
       location: 'Downtown Hall',
       attendees: 120,
-      image: '/ocean-conservation-fundraiser.jpg',
+      image: '/climate.png',
       category: 'fundraising',
       greenPointsReward: 100,
     },
@@ -76,7 +76,7 @@ export function EventsScreen() {
       time: '8:00 AM',
       location: 'Riverside Park',
       attendees: 78,
-      image: '/park-restoration-volunteers.jpg',
+      image: '/climate.png',
       category: 'cleanup',
       greenPointsReward: 60,
     },
@@ -138,7 +138,7 @@ export function EventsScreen() {
                 className="block overflow-hidden rounded-xl bg-white shadow-sm transition-shadow hover:shadow-md"
               >
                 <img
-                  src={event.image || "/placeholder.svg"}
+                  src={event.image || "/climate.png"}
                   alt={event.title}
                   className="h-48 w-full object-cover"
                 />

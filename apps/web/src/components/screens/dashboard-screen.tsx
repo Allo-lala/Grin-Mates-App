@@ -9,6 +9,7 @@ import SendReceiveDialog from '@/components/send-receive-dialog';
 import { MobileLayout } from '@/components/layout/mobile-layout';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function DashboardScreen() {
   const { user } = usePrivy();
@@ -36,7 +37,8 @@ export default function DashboardScreen() {
       chain: 'Base',
       balance: 1250.50,
       change: 2.5,
-      icon: '/usdc-base-icon.png',
+      icon: '/usdc.png',
+      chainIcon: '/coinbase.png',
       color: '#2775CA',
     },
     {
@@ -44,7 +46,8 @@ export default function DashboardScreen() {
       chain: 'Avalanche',
       balance: 890.25,
       change: -1.2,
-      icon: '/usdc-avalanche-icon.png',
+      icon: '/usdc.png',
+      chainIcon: '/usdc-avalanche-icon.png',
       color: '#E84142',
     },
     {
@@ -52,7 +55,8 @@ export default function DashboardScreen() {
       chain: 'Celo',
       balance: 3420.75,
       change: 5.8,
-      icon: '/celo-icon.png',
+      icon: '/celo-coin.png',
+      chainIcon: null,
       color: '#FBCC5C',
     },
   ];
@@ -138,14 +142,25 @@ export default function DashboardScreen() {
             {assets.map((asset, index) => (
               <div key={index} className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-full"
-                    style={{ backgroundColor: `${asset.color}20` }}
-                  >
-                    <div
-                      className="h-6 w-6 rounded-full"
-                      style={{ backgroundColor: asset.color }}
+                  <div className="relative flex h-10 w-10 items-center justify-center">
+                    <Image 
+                      src={asset.icon} 
+                      alt={`${asset.name} icon`}
+                      width={40}
+                      height={40}
+                      className="h-10 w-10 rounded-full"
                     />
+                    {asset.chainIcon && (
+                      <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-white border border-gray-200">
+                        <Image 
+                          src={asset.chainIcon} 
+                          alt={`${asset.chain} chain icon`}
+                          width={16}
+                          height={16}
+                          className="h-4 w-4 rounded-full"
+                        />
+                      </div>
+                    )}
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">{asset.name}</p>
