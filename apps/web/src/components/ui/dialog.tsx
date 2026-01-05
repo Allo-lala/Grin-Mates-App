@@ -8,7 +8,16 @@ export const Dialog = RadixDialog.Root;
 export const DialogTrigger = RadixDialog.Trigger;
 export const DialogContent: React.FC<React.ComponentProps<typeof RadixDialog.Content>> = (props) => (
   <RadixDialog.Portal>
-    <RadixDialog.Content {...props} className={`rounded-lg bg-white p-6 shadow-lg ${props.className}`} />
+    <RadixDialog.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" />
+    <RadixDialog.Content 
+      {...props} 
+      className={`
+        fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 
+        rounded-lg bg-white p-6 shadow-lg 
+        mx-4 max-h-[90vh] overflow-y-auto
+        ${props.className || ''}
+      `} 
+    />
   </RadixDialog.Portal>
 );
 export const DialogHeader: React.FC<React.PropsWithChildren<{ className?: string }>> = ({ children, className }) => (
