@@ -7,11 +7,16 @@ import { User, Copy, Check, LogOut, Loader2 } from 'lucide-react';
 import { MobileLayout } from '@/components/layout/mobile-layout';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import { clearSessionState } from '@/lib/session';
+import GreenPointsCard from '@/components/green-points-card';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, ready, authenticated, logout } = usePrivy();
   const [copied, setCopied] = useState(false);
+  const [hideGreenPoints, setHideGreenPoints] = useState(false);
+  
+  // Mock Green Points balance
+  const greenPoints = 1250;
 
   const handleCopyAddress = () => {
     const address = user?.wallet?.address || user?.email?.address;
@@ -46,7 +51,7 @@ export default function ProfileScreen() {
   }
 
   if (!authenticated || !user) {
-    router.push('/wallet-connect');
+    router.push('/');
     return null;
   }
 
@@ -79,6 +84,13 @@ export default function ProfileScreen() {
 
         {/* Main content */}
         <ResponsiveContainer maxWidth="md" padding="md" className="space-y-6 py-8">
+          {/* Green Points Card */}
+          <GreenPointsCard
+            points={greenPoints}
+            hideBalance={hideGreenPoints}
+            onToggleBalance={() => setHideGreenPoints(!hideGreenPoints)}
+          />
+
           {/* Profile card */}
           <div className="rounded-xl border border-muted bg-background p-6 md:p-8 space-y-6">
             {/* Avatar placeholder */}

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { MobileAppContainer } from './mobile-app-container';
-import { Home, Calendar, User, Settings } from 'lucide-react';
+import { Home, Calendar, Briefcase, Settings } from 'lucide-react';
 
 interface MobileLayoutProps {
   children: React.ReactNode;
@@ -40,9 +40,9 @@ export function MobileLayout({
       href: '/events',
     },
     {
-      label: 'Profile',
-      icon: User,
-      href: '/profile',
+      label: 'Services',
+      icon: Briefcase,
+      href: '/services',
     },
     {
       label: 'Settings',
