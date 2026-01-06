@@ -17,7 +17,7 @@ interface AuthGuardProps {
  */
 export default function AuthGuard({
   children,
-  redirectTo = '/wallet-connect',
+  redirectTo = '/',
   requireKYC = false, // Kept for backward compatibility but ignored
 }: AuthGuardProps) {
   const { authenticated, ready, user } = usePrivy();

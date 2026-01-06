@@ -1,7 +1,15 @@
 'use client';
 
-import WalletConnectionScreen from '@/components/screens/wallet-connection-screen';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function WalletConnectPage() {
-  return <WalletConnectionScreen />;
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect to welcome screen since wallet connection screens were removed
+    router.replace('/');
+  }, [router]);
+
+  return null;
 }
