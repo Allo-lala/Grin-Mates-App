@@ -172,7 +172,7 @@ export default function AnimalReportModal({ isOpen, onClose }: AnimalReportModal
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 space-y-4 pb-6">
           {/* Species */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -183,7 +183,7 @@ export default function AnimalReportModal({ isOpen, onClose }: AnimalReportModal
               value={report.species}
               onChange={(e) => setReport(prev => ({ ...prev, species: e.target.value }))}
               placeholder="e.g., African Elephant, Snow Leopard"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#1db584] focus:outline-none focus:ring-1 focus:ring-[#1db584]"
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-[#1db584] focus:outline-none focus:ring-1 focus:ring-[#1db584]"
               required
             />
           </div>
@@ -198,7 +198,7 @@ export default function AnimalReportModal({ isOpen, onClose }: AnimalReportModal
               onChange={(e) => setReport(prev => ({ ...prev, description: e.target.value }))}
               placeholder="Describe the animal's condition, behavior, and circumstances..."
               rows={3}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#1db584] focus:outline-none focus:ring-1 focus:ring-[#1db584]"
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-[#1db584] focus:outline-none focus:ring-1 focus:ring-[#1db584]"
               required
             />
           </div>
@@ -211,7 +211,7 @@ export default function AnimalReportModal({ isOpen, onClose }: AnimalReportModal
             <select
               value={report.endangermentLevel}
               onChange={(e) => setReport(prev => ({ ...prev, endangermentLevel: e.target.value as any }))}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#1db584] focus:outline-none focus:ring-1 focus:ring-[#1db584]"
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-[#1db584] focus:outline-none focus:ring-1 focus:ring-[#1db584]"
             >
               <option value="critical">Critical</option>
               <option value="endangered">Endangered</option>
@@ -282,8 +282,8 @@ export default function AnimalReportModal({ isOpen, onClose }: AnimalReportModal
                 {report.location ? 'Update Location' : 'Get Current Location'}
               </button>
               {report.location && (
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <p className="text-sm text-gray-600">
+                <div className="rounded-lg bg-white border border-gray-200 p-3">
+                  <p className="text-sm text-gray-900">
                     📍 {report.location.address}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
@@ -305,7 +305,7 @@ export default function AnimalReportModal({ isOpen, onClose }: AnimalReportModal
               onChange={(e) => setReport(prev => ({ ...prev, reporterNotes: e.target.value }))}
               placeholder="Any additional information that might be helpful..."
               rows={2}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#1db584] focus:outline-none focus:ring-1 focus:ring-[#1db584]"
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-[#1db584] focus:outline-none focus:ring-1 focus:ring-[#1db584]"
             />
           </div>
 

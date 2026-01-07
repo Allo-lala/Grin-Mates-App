@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Eye, EyeOff, Leaf, TrendingUp, Gift, Recycle } from 'lucide-react';
+import { Eye, EyeOff, Leaf, TrendingUp, Gift, Recycle, Flame, Sun } from 'lucide-react';
 
 interface GreenPointsCardProps {
   points: number;
@@ -21,10 +21,23 @@ export default function GreenPointsCard({
   };
 
   const recentEarnings = [
-    { activity: 'Gas Refill Purchase', points: 25, date: '2 hours ago' },
-    { activity: 'Plastic Recycling', points: 15, date: '1 day ago' },
-    { activity: 'Solar Panel Order', points: 120, date: '3 days ago' },
+    { activity: 'Gas Refill Purchase', points: 25, date: '2 hours ago', type: 'gas' },
+    { activity: 'Plastic Recycling', points: 15, date: '1 day ago', type: 'recycle' },
+    { activity: 'Solar Panel Order', points: 120, date: '3 days ago', type: 'solar' },
   ];
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'gas':
+        return <Flame className="h-4 w-4 text-orange-500" />;
+      case 'recycle':
+        return <Recycle className="h-4 w-4 text-green-600" />;
+      case 'solar':
+        return <Sun className="h-4 w-4 text-yellow-500" />;
+      default:
+        return <Leaf className="h-4 w-4 text-green-600" />;
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -85,8 +98,8 @@ export default function GreenPointsCard({
           {recentEarnings.map((earning, index) => (
             <div key={index} className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-green-100 p-2">
-                  <Recycle className="h-4 w-4 text-green-600" />
+                <div className="rounded-lg p-2">
+                  {getActivityIcon(earning.type)}
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-900">{earning.activity}</p>

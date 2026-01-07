@@ -232,7 +232,7 @@ export default function SolarConnectionModal({ isOpen, onClose }: SolarConnectio
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Enter your address"
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 required
               />
               <button

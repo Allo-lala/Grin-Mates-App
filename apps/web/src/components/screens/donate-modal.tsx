@@ -28,11 +28,11 @@ export function DonateModal({ isOpen, onClose }: DonateModalProps) {
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       if (selectedMethod === 'wallet') {
-        console.log('[v0] Donating from wallet:', amount);
+        console.log(' Donating from wallet:', amount);
         // Show success notification - Requirements: 7.3
         toast.success('Donation Successful!', `You donated ${amount} USDC to support climate action.`);
       } else if (selectedMethod === 'points') {
-        console.log('[v0] Donating green points:', amount);
+        console.log(' Donating green points:', amount);
         setGreenPoints(prev => prev - parseInt(amount));
         // Show success notification - Requirements: 7.3
         toast.success('Donation Successful!', `You donated ${amount} green points to support climate action.`);

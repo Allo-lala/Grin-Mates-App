@@ -230,7 +230,7 @@ export default function RecyclingModal({ isOpen, onClose }: RecyclingModalProps)
                   max="50"
                   value={quantity}
                   onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-center focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                  className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-center text-gray-900 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
                 />
                 <button
                   onClick={() => setQuantity(Math.min(50, quantity + 1))}
