@@ -118,8 +118,8 @@ export default function DashboardScreen() {
         </div>
 
         <ResponsiveContainer maxWidth="lg" padding="md" className="-mt-6 relative z-10">
-          {/* All buttons on the same line */}
-          <div className="grid grid-cols-4 gap-2">
+          {/* Send and Receive buttons */}
+          <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => setIsSendOpen(true)}
               className="flex flex-col items-center justify-center gap-1 rounded-xl bg-[#1db584] px-2 py-3 shadow-md hover:shadow-lg transition-shadow min-h-[44px]"
@@ -133,20 +133,6 @@ export default function DashboardScreen() {
             >
               <ArrowDownLeft className="h-4 w-4 text-white" />
               <span className="text-xs font-semibold text-white">Receive</span>
-            </button>
-            <Link
-              href="/events"
-              className="flex flex-col items-center justify-center gap-1 rounded-xl bg-white px-2 py-3 shadow-md hover:shadow-lg transition-shadow min-h-[44px]"
-            >
-              <Ticket className="h-4 w-4 text-[#1db584]" />
-              <span className="text-xs font-semibold text-gray-900">Events</span>
-            </Link>
-            <button
-              onClick={() => setIsDonateOpen(true)}
-              className="flex flex-col items-center justify-center gap-1 rounded-xl bg-white px-2 py-3 shadow-md hover:shadow-lg transition-shadow min-h-[44px]"
-            >
-              <Heart className="h-4 w-4 text-[#1db584]" />
-              <span className="text-xs font-semibold text-gray-900">Donate</span>
             </button>
           </div>
         </ResponsiveContainer>

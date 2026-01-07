@@ -49,7 +49,7 @@ export default function ServicesScreen() {
     },
     {
       id: 'animal-conservation',
-      title: 'Animal Conservation',
+      title: 'Animal Rescue',
       description: 'Report endangered animals & locations',
       icon: Camera,
       color: 'from-green-500 to-emerald-600',
@@ -69,7 +69,7 @@ export default function ServicesScreen() {
     {
       id: 'recycling',
       title: 'Smart Recycling',
-      description: 'Scan QR codes & earn crypto',
+      description: 'Scan QR codes & earn Green Points',
       icon: Recycle,
       color: 'from-green-500 to-teal-600',
       action: () => setIsRecyclingOpen(true)
@@ -89,10 +89,10 @@ export default function ServicesScreen() {
 
   const organizations = [
     {
-      name: 'Green Mates',
+      name: 'Grin Mates',
       description: 'Environmental conservation organization',
-      ethAddress: '0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b9', // Example address
-      logo: '🌱',
+      ethAddress: '0x9A34CA12c1521f1e685f5fAB4F7Ffb9637b39fA6', // Eth address
+      logo: '/mobilogo.png',
       focus: 'Climate Action & Biodiversity'
     }
   ];
@@ -113,7 +113,7 @@ export default function ServicesScreen() {
         <ResponsiveContainer maxWidth="lg" padding="md" className="-mt-6 relative z-10">
           {/* Eco-Friendly Services */}
           <div className="mb-8">
-            <h2 className="mb-4 text-lg font-bold text-gray-900">Environmental Services</h2>
+            {/* <h2 className="mb-4 text-lg font-bold text-gray-900">Environmental Services</h2> */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {ecoServices.map((service) => {
                 const Icon = service.icon;
@@ -163,7 +163,13 @@ export default function ServicesScreen() {
                 <div key={index} className="rounded-xl bg-white p-3 sm:p-4 shadow-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3 flex-1 min-w-0">
-                      <div className="text-xl sm:text-2xl flex-shrink-0">{org.logo}</div>
+                      <div className="text-xl sm:text-2xl flex-shrink-0">
+                        <img 
+                          src={org.logo} 
+                          alt={`${org.name} logo`}
+                          className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
+                        />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{org.name}</h3>
                         <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">{org.description}</p>
@@ -176,10 +182,10 @@ export default function ServicesScreen() {
                     </div>
                     <button
                       onClick={() => setIsDonationOpen(true)}
-                      className="flex items-center gap-1 rounded-lg bg-[#1db584] px-2 sm:px-3 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-[#15a576] transition-colors flex-shrink-0"
+                      className="flex items-center gap-1 rounded-lg bg-[#1db584] px-2 sm:px-3 py-2 text-xs sm:text-sm font-semibold text-white hover:bg-[#15a576] transition-colors flex-shrink-0 min-w-[60px] sm:min-w-[80px] justify-center"
                     >
                       <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
-                      <span className="hidden sm:inline">Donate</span>
+                      <span className="hidden xs:inline sm:inline">Donate</span>
                     </button>
                   </div>
                 </div>

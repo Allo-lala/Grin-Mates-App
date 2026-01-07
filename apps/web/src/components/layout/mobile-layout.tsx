@@ -30,7 +30,7 @@ export function MobileLayout({
 
   const navigationItems = [
     {
-      label: 'Dashboard',
+      label: 'Home',
       icon: Home,
       href: '/dashboard',
     },
