@@ -84,7 +84,7 @@ export function MobileLayout({
                       'transition-colors duration-200',
                       'relative',
                       isActive
-                        ? 'text-[#1db584]'
+                        ? 'text-primary'
                         : 'text-gray-600 hover:text-gray-900'
                     )}
                   >

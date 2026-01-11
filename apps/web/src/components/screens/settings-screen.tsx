@@ -1,27 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Moon, Sun, Bell, Lock, HelpCircle, FileText, ExternalLink, Copy } from 'lucide-react';
+import { Bell, Lock, HelpCircle, FileText, Shield, MessageCircle, Send, Mail, X } from 'lucide-react';
 import { MobileLayout } from '@/components/layout/mobile-layout';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
-import { useTheme } from 'next-themes';
-import { getContractInfo, getCurrentNetwork } from '@/lib/contracts';
 
 export default function SettingsScreen() {
-  const { theme, setTheme } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [biometric, setBiometric] = useState(false);
-  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
-
-  // Get contract information
-  const contractInfo = getContractInfo();
-  const currentNetwork = getCurrentNetwork();
-
-  const handleCopyAddress = (address: string, type: string) => {
-    navigator.clipboard.writeText(address);
-    setCopiedAddress(`${type}-${address}`);
-    setTimeout(() => setCopiedAddress(null), 2000);
-  };
+  const [showSupportModal, setShowSupportModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   const settings = [
     {
@@ -41,35 +30,35 @@ export default function SettingsScreen() {
       type: 'toggle',
     },
     {
-      icon: Moon,
-      title: 'Theme',
-      description: `Current: ${theme === 'dark' ? 'Dark' : 'Light'} mode`,
-      onClick: () => setTheme(theme === 'dark' ? 'light' : 'dark'),
-      type: 'action',
-    },
-    {
       icon: HelpCircle,
       title: 'Help & Support',
       description: 'Get help and contact support',
-      type: 'link',
-      href: '#',
+      type: 'action',
+      onClick: () => setShowSupportModal(true),
     },
     {
       icon: FileText,
-      title: 'Terms & Privacy',
-      description: 'Read our terms and privacy policy',
-      type: 'link',
-      href: '#',
+      title: 'Terms & Conditions',
+      description: 'Read our terms and conditions',
+      type: 'action',
+      onClick: () => setShowTermsModal(true),
+    },
+    {
+      icon: Shield,
+      title: 'Privacy Policy',
+      description: 'Read our privacy policy',
+      type: 'action',
+      onClick: () => setShowPrivacyModal(true),
     },
   ];
 
   return (
     <MobileLayout showBottomNav={true}>
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted">
+      <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary/10 to-accent/10 py-8">
+        <div className="bg-gradient-to-br from-[#1db584] to-[#15a576] pb-8 pt-6">
           <ResponsiveContainer maxWidth="md" padding="md">
-            <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+            <h1 className="text-3xl font-bold text-white">Settings</h1>
           </ResponsiveContainer>
         </div>
 
@@ -81,15 +70,15 @@ export default function SettingsScreen() {
               <button
                 key={index}
                 onClick={setting.onClick}
-                className="flex w-full items-center justify-between rounded-lg border border-muted bg-background p-4 hover:border-primary/30 hover:bg-muted/50 transition-all min-h-[44px]"
+                className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white p-4 hover:border-primary/30 hover:bg-gray-50 transition-all min-h-[44px]"
               >
                 <div className="flex items-center gap-4 text-left">
-                  <div className="rounded-lg bg-primary/10 p-3 min-w-[44px] min-h-[44px] flex items-center justify-center">
+                  <div className="rounded-lg p-3 min-w-[44px] min-h-[44px] flex items-center justify-center">
                     <Icon className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground">{setting.title}</p>
-                    <p className="text-sm text-muted-foreground">{setting.description}</p>
+                    <p className="font-semibold text-gray-900">{setting.title}</p>
+                    <p className="text-sm text-gray-600">{setting.description}</p>
                   </div>
                 </div>
 
@@ -100,12 +89,14 @@ export default function SettingsScreen() {
                       setting.onChange?.(!setting.value);
                     }}
                     className={`relative h-6 w-11 rounded-full transition-colors flex-shrink-0 ${
-                      setting.value ? 'bg-primary' : 'bg-muted'
+                      setting.value ? 'bg-primary' : 'bg-gray-300'
                     }`}
                   >
                     <div
-                      className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
-                        setting.value ? 'translate-x-5' : 'translate-x-0.5'
+                      className={`absolute top-0.5 h-5 w-5 rounded-full transition-transform ${
+                        setting.value 
+                          ? 'translate-x-5 bg-white' 
+                          : 'translate-x-0.5 bg-white'
                       }`}
                     />
                   </button>
@@ -113,13 +104,7 @@ export default function SettingsScreen() {
 
                 {setting.type === 'action' && (
                   <div className="text-right flex-shrink-0">
-                    <Sun className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                )}
-
-                {setting.type === 'link' && (
-                  <div className="text-right flex-shrink-0">
-                    <div className="h-5 w-5 rounded-full border border-muted-foreground" />
+                    {/* No circle for action items */}
                   </div>
                 )}
               </button>
@@ -127,99 +112,157 @@ export default function SettingsScreen() {
           })}
         </ResponsiveContainer>
 
-        {/* Contract Information */}
-        <ResponsiveContainer maxWidth="md" padding="md" className="py-4">
-          <div className="rounded-lg border border-muted bg-background p-6 space-y-4">
-            <h2 className="text-lg font-semibold text-foreground">Smart Contract Info</h2>
-            
-            <div className="space-y-3">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Network</p>
-                <p className="text-sm text-foreground">{contractInfo.network}</p>
-              </div>
-              
-              {'error' in contractInfo ? (
-                <div className="rounded-lg bg-red-50 border border-red-200 p-3">
-                  <p className="text-sm text-red-600">{contractInfo.error}</p>
-                </div>
-              ) : (
-                <>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">ProofOfHuman Contract</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <p className="text-xs font-mono text-foreground break-all">
-                        {contractInfo.proofOfHuman.address}
-                      </p>
-                      <button
-                        onClick={() => handleCopyAddress(contractInfo.proofOfHuman.address, 'contract')}
-                        className="flex-shrink-0 p-1 hover:bg-muted rounded"
-                      >
-                        <Copy className="h-3 w-3 text-muted-foreground" />
-                      </button>
-                      <a
-                        href={contractInfo.proofOfHuman.explorerUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-shrink-0 p-1 hover:bg-muted rounded"
-                      >
-                        <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                      </a>
-                    </div>
-                    {copiedAddress === `contract-${contractInfo.proofOfHuman.address}` && (
-                      <p className="text-xs text-green-600 mt-1">Copied!</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {currentNetwork === 'celo' ? 'Self Protocol Hub' : 'Hub Contract (Mock)'}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <p className="text-xs font-mono text-foreground break-all">
-                        {contractInfo.hub.address}
-                      </p>
-                      <button
-                        onClick={() => handleCopyAddress(contractInfo.hub.address, 'hub')}
-                        className="flex-shrink-0 p-1 hover:bg-muted rounded"
-                      >
-                        <Copy className="h-3 w-3 text-muted-foreground" />
-                      </button>
-                      <a
-                        href={contractInfo.hub.explorerUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-shrink-0 p-1 hover:bg-muted rounded"
-                      >
-                        <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                      </a>
-                    </div>
-                    {copiedAddress === `hub-${contractInfo.hub.address}` && (
-                      <p className="text-xs text-green-600 mt-1">Copied!</p>
-                    )}
-                  </div>
-
-                  {currentNetwork !== 'celo' && (
-                    <div className="rounded-lg bg-blue-50 border border-blue-200 p-3">
-                      <p className="text-xs text-blue-600">
-                        ⚠️ Using mock hub for testing. Replace with real Self Protocol hub for production.
-                      </p>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        </ResponsiveContainer>
-
         {/* App info */}
         <ResponsiveContainer maxWidth="md" padding="md" className="py-8 text-center">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-gray-600">
             Grin Mates v0.1.0
           </p>
-          <p className="mt-2 text-xs text-muted-foreground">
+          <p className="mt-2 text-xs text-gray-500">
             Built on Celo for a sustainable future
           </p>
         </ResponsiveContainer>
+
+        {/* Support Modal */}
+        {showSupportModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 w-full max-w-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Help & Support</h3>
+                <button
+                  onClick={() => setShowSupportModal(false)}
+                  className="p-1 hover:bg-gray-100 rounded"
+                >
+                  <X className="h-5 w-5 text-gray-600" />
+                </button>
+              </div>
+              
+              <div className="space-y-3">
+                <a
+                  href="https://wa.me/1234567890"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                >
+                  <MessageCircle className="h-5 w-5 text-green-600" />
+                  <div>
+                    <p className="font-medium text-gray-900">WhatsApp</p>
+                    <p className="text-sm text-gray-600">Chat with our support team</p>
+                  </div>
+                </a>
+                
+                <a
+                  href="https://t.me/yoursupport"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                >
+                  <Send className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <p className="font-medium text-gray-900">Telegram</p>
+                    <p className="text-sm text-gray-600">Join our support channel</p>
+                  </div>
+                </a>
+                
+                <a
+                  href="mailto:support@grinmates.com"
+                  className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                >
+                  <Mail className="h-5 w-5 text-red-600" />
+                  <div>
+                    <p className="font-medium text-gray-900">Email</p>
+                    <p className="text-sm text-gray-600">support@grinmates.com</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Terms Modal */}
+        {showTermsModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Terms & Conditions</h3>
+                <button
+                  onClick={() => setShowTermsModal(false)}
+                  className="p-1 hover:bg-gray-100 rounded"
+                >
+                  <X className="h-5 w-5 text-gray-600" />
+                </button>
+              </div>
+              
+              <div className="prose prose-sm text-gray-900">
+                <p className="text-sm text-gray-600 mb-4">
+                  Last updated: January 2026
+                </p>
+                
+                <h4 className="font-semibold mb-2">1. Acceptance of Terms</h4>
+                <p className="text-sm mb-4">
+                  By using Grin Mates, you agree to these terms and conditions.
+                </p>
+                
+                <h4 className="font-semibold mb-2">2. Use of Service</h4>
+                <p className="text-sm mb-4">
+                  You may use our service for lawful purposes only. You agree not to use the service for any illegal activities.
+                </p>
+                
+                <h4 className="font-semibold mb-2">3. User Accounts</h4>
+                <p className="text-sm mb-4">
+                  You are responsible for maintaining the security of your account and all activities that occur under your account.
+                </p>
+                
+                <h4 className="font-semibold mb-2">4. Limitation of Liability</h4>
+                <p className="text-sm">
+                  Grin Mates shall not be liable for any indirect, incidental, special, consequential, or punitive damages.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Privacy Modal */}
+        {showPrivacyModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Privacy Policy</h3>
+                <button
+                  onClick={() => setShowPrivacyModal(false)}
+                  className="p-1 hover:bg-gray-100 rounded"
+                >
+                  <X className="h-5 w-5 text-gray-600" />
+                </button>
+              </div>
+              
+              <div className="prose prose-sm text-gray-900">
+                <p className="text-sm text-gray-600 mb-4">
+                  Last updated: January 2026
+                </p>
+                
+                <h4 className="font-semibold mb-2">Information We Collect</h4>
+                <p className="text-sm mb-4">
+                  We collect information you provide directly to us, such as when you create an account or contact us for support.
+                </p>
+                
+                <h4 className="font-semibold mb-2">How We Use Your Information</h4>
+                <p className="text-sm mb-4">
+                  We use the information we collect to provide, maintain, and improve our services.
+                </p>
+                
+                <h4 className="font-semibold mb-2">Information Sharing</h4>
+                <p className="text-sm mb-4">
+                  We do not sell, trade, or otherwise transfer your personal information to third parties without your consent.
+                </p>
+                
+                <h4 className="font-semibold mb-2">Data Security</h4>
+                <p className="text-sm">
+                  We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </MobileLayout>
   );

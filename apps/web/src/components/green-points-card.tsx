@@ -7,12 +7,14 @@ interface GreenPointsCardProps {
   points: number;
   hideBalance: boolean;
   onToggleBalance: () => void;
+  onClick?: () => void;
 }
 
 export default function GreenPointsCard({
   points,
   hideBalance,
   onToggleBalance,
+  onClick,
 }: GreenPointsCardProps) {
   const [copied, setCopied] = useState(false);
 
@@ -42,7 +44,12 @@ export default function GreenPointsCard({
   return (
     <div className="space-y-4">
       {/* Green Points Card */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 p-6 text-white shadow-lg">
+      <div 
+        className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 p-6 text-white shadow-lg ${
+          onClick ? 'cursor-pointer hover:from-green-600 hover:to-emerald-700 transition-all' : ''
+        }`}
+        onClick={onClick}
+      >
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-white/20" />
@@ -58,7 +65,10 @@ export default function GreenPointsCard({
               <span className="text-lg font-semibold">Green Points</span>
             </div>
             <button
-              onClick={onToggleBalance}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleBalance();
+              }}
               className="rounded-full p-2 hover:bg-white/20 transition-colors"
             >
               {hideBalance ? (

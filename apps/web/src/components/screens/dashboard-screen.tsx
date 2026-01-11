@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
-import { Ticket, Heart, TrendingUp, TrendingDown, User, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { TrendingUp, TrendingDown, User, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import VirtualCard from '@/components/virtual-card';
 import DonateModal from '@/components/screens/donate-modal';
 import SendReceiveDialog from '@/components/send-receive-dialog';
@@ -141,7 +141,7 @@ export default function DashboardScreen() {
           <h2 className="mb-3 text-lg font-bold text-gray-900">Your Assets</h2>
           <div className="space-y-3">
             {assets.map((asset, index) => (
-              <div key={index} className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm">
+              <div key={index} className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm border border-gray-200">
                 <div className="flex items-center gap-3">
                   <div className="relative flex h-10 w-10 items-center justify-center">
                     <Image 
@@ -165,7 +165,7 @@ export default function DashboardScreen() {
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">{asset.name}</p>
-                    <p className="text-sm text-gray-500">{asset.chain}</p>
+                    <p className="text-sm text-gray-600">{asset.chain}</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -190,7 +190,7 @@ export default function DashboardScreen() {
           <h2 className="mb-3 text-lg font-bold text-gray-900">Recent Transactions</h2>
           <div className="space-y-3">
             {transactions.map((tx) => (
-              <div key={tx.id} className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm">
+              <div key={tx.id} className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm border border-gray-200">
                 <div className="flex items-center gap-3">
                   <div className={`rounded-full p-2 ${
                     tx.type === 'receive' ? 'bg-green-100' : 'bg-orange-100'
@@ -205,10 +205,10 @@ export default function DashboardScreen() {
                     <p className="font-semibold text-gray-900">
                       {tx.type === 'receive' ? 'Received' : 'Sent'} {tx.asset}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-600">
                       {tx.type === 'receive' ? `From ${tx.from}` : `To ${tx.to}`}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-500">
                       {tx.timestamp.toLocaleDateString()} {tx.timestamp.toLocaleTimeString()}
                     </p>
                   </div>

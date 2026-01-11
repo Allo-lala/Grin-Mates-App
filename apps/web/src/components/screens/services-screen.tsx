@@ -10,9 +10,9 @@ import {
   MapPin, 
   Wallet,
   ArrowRight,
-  Leaf,
   TreePine,
-  Recycle
+  Recycle,
+  Star
 } from 'lucide-react';
 import { MobileLayout } from '@/components/layout/mobile-layout';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
@@ -21,6 +21,7 @@ import DonationModal from '@/components/modals/donation-modal';
 import GasRefillModal from '@/components/modals/gas-refill-modal';
 import SolarConnectionModal from '@/components/modals/solar-connection-modal';
 import RecyclingModal from '@/components/modals/recycling-modal';
+import GreenPointsModal from '@/components/modals/green-points-modal';
 
 export default function ServicesScreen() {
   const { user } = usePrivy();
@@ -29,6 +30,10 @@ export default function ServicesScreen() {
   const [isGasRefillOpen, setIsGasRefillOpen] = useState(false);
   const [isSolarConnectionOpen, setIsSolarConnectionOpen] = useState(false);
   const [isRecyclingOpen, setIsRecyclingOpen] = useState(false);
+  const [isGreenPointsOpen, setIsGreenPointsOpen] = useState(false);
+  
+  // Mock Green Points balance
+  const greenPoints = 1250;
 
   const ecoServices = [
     {
@@ -75,15 +80,12 @@ export default function ServicesScreen() {
       action: () => setIsRecyclingOpen(true)
     },
     {
-      id: 'carbon-offset',
-      title: 'Carbon Offset',
-      description: 'Purchase verified carbon credits',
-      icon: Leaf,
+      id: 'green-points',
+      title: 'Green Points',
+      description: 'View & manage your eco rewards',
+      icon: Star,
       color: 'from-emerald-500 to-green-600',
-      action: () => {
-        // TODO: Implement carbon offset
-        console.log('Carbon offset');
-      }
+      action: () => setIsGreenPointsOpen(true)
     }
   ];
 
@@ -140,8 +142,8 @@ export default function ServicesScreen() {
                         {service.id === 'recycling' && (
                           <Icon className="h-8 w-8 sm:h-10 sm:w-10 text-green-500" />
                         )}
-                        {service.id === 'carbon-offset' && (
-                          <Icon className="h-8 w-8 sm:h-10 sm:w-10 text-green-500" />
+                        {service.id === 'green-points' && (
+                          <Icon className="h-8 w-8 sm:h-10 sm:w-10 text-yellow-500" />
                         )}
                       </div>
                       <div className="text-center">
@@ -160,7 +162,7 @@ export default function ServicesScreen() {
             <h2 className="mb-4 text-lg font-bold text-gray-900">Support Organizations</h2>
             <div className="space-y-3">
               {organizations.map((org, index) => (
-                <div key={index} className="rounded-xl bg-white p-3 sm:p-4 shadow-sm">
+                <div key={index} className="rounded-xl bg-white p-3 sm:p-4 shadow-sm border border-gray-200">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3 flex-1 min-w-0">
                       <div className="text-xl sm:text-2xl flex-shrink-0">
@@ -174,7 +176,7 @@ export default function ServicesScreen() {
                         <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{org.name}</h3>
                         <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">{org.description}</p>
                         <p className="text-xs text-gray-500 mb-1 sm:mb-2">{org.focus}</p>
-                        <div className="flex items-center gap-2 text-xs text-gray-400">
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
                           <Wallet className="h-3 w-3 flex-shrink-0" />
                           <span className="font-mono truncate">{org.ethAddress}</span>
                         </div>
@@ -199,7 +201,7 @@ export default function ServicesScreen() {
             <div className="space-y-3">
               <button
                 onClick={() => setIsAnimalReportOpen(true)}
-                className="flex items-center justify-between w-full rounded-xl bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow"
+                className="flex items-center justify-between w-full rounded-xl bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow border border-gray-200"
               >
                 <div className="flex items-center gap-3">
                   <div className="rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 p-2">
@@ -251,7 +253,7 @@ export default function ServicesScreen() {
                     alert('Geolocation is not supported by this browser.');
                   }
                 }}
-                className="flex items-center justify-between w-full rounded-xl bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow"
+                className="flex items-center justify-between w-full rounded-xl bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow border border-gray-200"
               >
                 <div className="flex items-center gap-3">
                   <div className="rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 p-2">
@@ -293,6 +295,12 @@ export default function ServicesScreen() {
         <RecyclingModal 
           isOpen={isRecyclingOpen} 
           onClose={() => setIsRecyclingOpen(false)} 
+        />
+
+        <GreenPointsModal 
+          isOpen={isGreenPointsOpen} 
+          onClose={() => setIsGreenPointsOpen(false)}
+          points={greenPoints}
         />
       </div>
     </MobileLayout>
