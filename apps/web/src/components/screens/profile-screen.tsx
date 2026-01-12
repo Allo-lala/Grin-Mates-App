@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
-import { User, Camera, Save, LogOut, Loader2, Edit3 } from 'lucide-react';
+import { User, Camera, Save, LogOut, Loader2, Edit3, Shield, CheckCircle, AlertTriangle } from 'lucide-react';
 import { MobileLayout } from '@/components/layout/mobile-layout';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import { clearSessionState } from '@/lib/session';
@@ -21,6 +21,8 @@ export default function ProfileScreen() {
     dateOfBirth: '',
     phoneNumber: '',
   });
+  const [isKycCompleted, setIsKycCompleted] = useState(false); // This would come from your backend/state management
+  const [kycStatus, setKycStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none'); // KYC status from backend
 
   const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -45,6 +47,10 @@ export default function ProfileScreen() {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleKycRedirect = () => {
+    router.push('/kyc/welcome');
   };
 
   const handleLogout = async () => {
@@ -230,6 +236,80 @@ export default function ProfileScreen() {
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* KYC Verification Section */}
+            <div className="border-t border-gray-200 pt-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Identity Verification</h3>
+              
+              {kycStatus === 'approved' ? (
+                <div className="p-4 rounded-lg bg-green-50 border border-green-200">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="h-6 w-6 text-green-600" />
+                    <div>
+                      <h4 className="font-medium text-green-900">Verification Complete</h4>
+                      <p className="text-sm text-green-700">
+                        Your identity has been verified. You can now use all features including mobile money deposits.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : kycStatus === 'pending' ? (
+                <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
+                  <div className="flex items-center gap-3">
+                    <div className="h-6 w-6 rounded-full border-2 border-blue-600 border-t-transparent animate-spin"></div>
+                    <div>
+                      <h4 className="font-medium text-blue-900">Verification Pending</h4>
+                      <p className="text-sm text-blue-700">
+                        Your documents are being reviewed. You'll be notified within 24-48 hours once verification is complete.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : kycStatus === 'rejected' ? (
+                <div className="p-4 rounded-lg bg-red-50 border border-red-200">
+                  <div className="flex items-start gap-3 mb-4">
+                    <AlertTriangle className="h-6 w-6 text-red-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-red-900">Verification Failed</h4>
+                      <p className="text-sm text-red-700 mb-3">
+                        Your verification was unsuccessful. Please try again with clearer documents.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={handleKycRedirect}
+                    className="w-full flex items-center justify-center gap-2 rounded-lg bg-red-500 py-3 font-medium text-white hover:bg-red-600 transition-colors min-h-[44px]"
+                  >
+                    <Shield className="h-5 w-5" />
+                    Try Again
+                  </button>
+                </div>
+              ) : (
+                <div className="p-4 rounded-lg bg-amber-50 border border-amber-200">
+                  <div className="flex items-start gap-3 mb-4">
+                    <AlertTriangle className="h-6 w-6 text-amber-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-amber-900">Verification Required</h4>
+                      <p className="text-sm text-amber-700 mb-3">
+                        Complete your identity verification to unlock mobile money deposits and other premium features.
+                      </p>
+                      <p className="text-xs text-amber-600">
+                        Accepted documents: Government-issued ID, Passport, Driver's License
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={handleKycRedirect}
+                    className="w-full flex items-center justify-center gap-2 rounded-lg bg-amber-500 py-3 font-medium text-white hover:bg-amber-600 transition-colors min-h-[44px]"
+                  >
+                    <Shield className="h-5 w-5" />
+                    Complete Verification
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Save button */}

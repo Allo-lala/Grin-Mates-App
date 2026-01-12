@@ -1,23 +1,27 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
-import { TrendingUp, TrendingDown, User, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { TrendingUp, TrendingDown, User, ArrowUpRight, ArrowDownLeft, Wallet } from 'lucide-react';
 import VirtualCard from '@/components/virtual-card';
 import DonateModal from '@/components/screens/donate-modal';
-import SendReceiveDialog from '@/components/send-receive-dialog';
+import DepositReceiveDialog from '@/components/deposit-receive-dialog';
 import { MobileLayout } from '@/components/layout/mobile-layout';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function DashboardScreen() {
+  const router = useRouter();
   const { user } = usePrivy();
   const [balance, setBalance] = useState('2,450.50');
   const [hideBalance, setHideBalance] = useState(false);
   const [isDonateOpen, setIsDonateOpen] = useState(false);
-  const [isSendOpen, setIsSendOpen] = useState(false);
+  const [isDepositOpen, setIsDepositOpen] = useState(false);
   const [isReceiveOpen, setIsReceiveOpen] = useState(false);
+  const [isKycCompleted, setIsKycCompleted] = useState(false); // This would come from your backend/state management
+  const [kycStatus, setKycStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none'); // KYC status from backend
 
   // Get wallet address from Privy user
   const walletAddress = user?.wallet?.address || user?.email?.address || 'Unknown';
@@ -30,6 +34,10 @@ export default function DashboardScreen() {
   } else if (user?.wallet?.address) {
     displayName = `${user.wallet.address.slice(0, 6)}...${user.wallet.address.slice(-4)}`;
   }
+
+  const handleKycRedirect = () => {
+    router.push('/kyc/welcome');
+  };
 
   const assets = [
     {
@@ -111,21 +119,21 @@ export default function DashboardScreen() {
               walletAddress={walletAddress}
               hideBalance={hideBalance}
               onToggleBalance={() => setHideBalance(!hideBalance)}
-              onSend={() => setIsSendOpen(true)}
+              onSend={() => setIsDepositOpen(true)}
               onReceive={() => setIsReceiveOpen(true)}
             />
           </ResponsiveContainer>
         </div>
 
         <ResponsiveContainer maxWidth="lg" padding="md" className="-mt-6 relative z-10">
-          {/* Send and Receive buttons */}
+          {/* Deposit and Receive buttons */}
           <div className="grid grid-cols-2 gap-2">
             <button
-              onClick={() => setIsSendOpen(true)}
+              onClick={() => setIsDepositOpen(true)}
               className="flex flex-col items-center justify-center gap-1 rounded-xl bg-[#1db584] px-2 py-3 shadow-md hover:shadow-lg transition-shadow min-h-[44px]"
             >
-              <ArrowUpRight className="h-4 w-4 text-white" />
-              <span className="text-xs font-semibold text-white">Send</span>
+              <Wallet className="h-4 w-4 text-white" />
+              <span className="text-xs font-semibold text-white">Deposit</span>
             </button>
             <button
               onClick={() => setIsReceiveOpen(true)}
@@ -227,14 +235,17 @@ export default function DashboardScreen() {
         </ResponsiveContainer>
 
         <DonateModal isOpen={isDonateOpen} onClose={() => setIsDonateOpen(false)} />
-        <SendReceiveDialog
-          isOpen={isSendOpen}
-          type="send"
+        <DepositReceiveDialog
+          isOpen={isDepositOpen}
+          type="deposit"
           walletAddress={walletAddress}
-          onClose={() => setIsSendOpen(false)}
+          isKycCompleted={kycStatus === 'approved'}
+          kycStatus={kycStatus}
+          onKycRedirect={handleKycRedirect}
+          onClose={() => setIsDepositOpen(false)}
         />
 
-        <SendReceiveDialog
+        <DepositReceiveDialog
           isOpen={isReceiveOpen}
           type="receive"
           walletAddress={walletAddress}

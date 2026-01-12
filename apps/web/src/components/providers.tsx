@@ -7,6 +7,19 @@ import SessionManager from "./session-manager";
 export function Providers({ children }: { children: ReactNode }) {
   const privyAppId = process.env.NEXT_PUBLIC_PRIVY_APP_ID || "";
 
+  // Development fallback for missing Privy configuration
+  if (!privyAppId) {
+    console.warn("NEXT_PUBLIC_PRIVY_APP_ID is not set");
+    return (
+      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <p className="text-yellow-800">
+          Privy configuration missing. Please set NEXT_PUBLIC_PRIVY_APP_ID in your environment variables.
+        </p>
+        {children}
+      </div>
+    );
+  }
+
   return (
     <PrivyProvider
       appId={privyAppId}
