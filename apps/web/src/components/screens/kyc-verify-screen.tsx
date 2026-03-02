@@ -1,121 +1,188 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, Upload, FileText, Camera, CheckCircle, AlertTriangle, ArrowLeft, Smartphone } from 'lucide-react';
+import { usePrivy } from '@privy-io/react-auth';
+import { Shield, CheckCircle, AlertTriangle, ArrowLeft, Copy, ExternalLink, Loader2 } from 'lucide-react';
 import { MobileLayout } from '@/components/layout/mobile-layout';
 import { ResponsiveContainer } from '@/components/layout/responsive-container';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { toast } from '@/lib/toast';
+import {
+  SelfQRcodeWrapper,
+  SelfAppBuilder,
+  type SelfApp,
+  countries,
+} from '@selfxyz/qrcode';
+import { ethers } from 'ethers';
 
 export default function KYCVerifyScreen() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    dateOfBirth: '',
-    nationality: '',
-    documentType: '',
-    documentNumber: '',
-    licenseNumber: '',
-    passportNumber: '',
-    driversLicenseNumber: '',
-    address: '',
-    city: '',
-    postalCode: '',
-    country: '',
-  });
-  const [uploadedFiles, setUploadedFiles] = useState<{
-    frontDocument: File | null;
-    backDocument: File | null;
-    selfie: File | null;
-  }>({
-    frontDocument: null,
-    backDocument: null,
-    selfie: null,
-  });
+  const { user } = usePrivy();
+  const [selfApp, setSelfApp] = useState<SelfApp | null>(null);
+  const [universalLink, setUniversalLink] = useState('');
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<'pending' | 'verifying' | 'completed' | 'failed'>('pending');
+  const [userId, setUserId] = useState<string>(ethers.ZeroAddress);
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+  // Excluded countries (if any)
+  const excludedCountries = useMemo(() => [], []);
 
-  const handleFileUpload = (type: 'frontDocument' | 'backDocument' | 'selfie', file: File) => {
-    setUploadedFiles(prev => ({
-      ...prev,
-      [type]: file
-    }));
-  };
-
-  const handleNext = () => {
-    if (currentStep < 3) {
-      setCurrentStep(currentStep + 1);
+  useEffect(() => {
+    const walletAddress = user?.wallet?.address;
+    
+    if (!walletAddress) {
+      toast.error('Wallet Not Found', 'Please connect your wallet to continue.');
+      router.push('/profile');
+      return;
     }
+
+    setUserId(walletAddress);
+    initializeSelfApp(walletAddress);
+  }, [user]);
+
+  const initializeSelfApp = (walletAddress: string) => {
+    try {
+      const app = new SelfAppBuilder({
+        version: 2,
+        appName: process.env.NEXT_PUBLIC_SELF_APP_NAME || 'Grin Mates',
+        scope: process.env.NEXT_PUBLIC_SELF_SCOPE_SEED || 'grin-mates',
+        endpoint: process.env.NEXT_PUBLIC_SELF_ENDPOINT || '',
+        logoBase64: process.env.NEXT_PUBLIC_SELF_LOGO_URL || 'https://i.postimg.cc/mrmVf9hm/self.png',
+        userId: walletAddress,
+        endpointType: (process.env.NEXT_PUBLIC_SELF_ENDPOINT_TYPE as any) || 'staging_celo',
+        userIdType: 'hex', // ethereum address
+        userDefinedData: JSON.stringify({
+          walletAddress,
+          timestamp: Date.now(),
+          app: 'Grin Mates KYC',
+        }),
+        disclosures: {
+          // What you want to verify from users identity
+          minimumAge: 18,
+          excludedCountries: excludedCountries,
+          // What you want users to reveal (optional)
+          // name: true,
+          // issuing_state: true,
+          // nationality: true,
+          // date_of_birth: true,
+        },
+      }).build();
+
+      setSelfApp(app);
+      
+      // Generate universal link manually
+      const link = `https://self.id/verify?app=${encodeURIComponent(app.appName)}&data=${encodeURIComponent(JSON.stringify(app))}`;
+      setUniversalLink(link);
+    } catch (error) {
+      console.error('Failed to initialize Self app:', error);
+      toast.error('Initialization Failed', 'Failed to initialize Self Protocol.');
+    }
+  };
+
+  const handleSuccessfulVerification = async () => {
+    setVerificationStatus('verifying');
+    
+    try {
+      // Submit verification to backend
+      const response = await fetch('/api/kyc/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          walletAddress: userId,
+          selfDID: `did:self:${userId}`,
+          verificationData: {
+            verified: true,
+            timestamp: Date.now(),
+          },
+          status: 'approved',
+        }),
+      });
+
+      if (response.ok) {
+        setVerificationStatus('completed');
+        toast.success('Verification Complete!', 'Your identity has been verified successfully.');
+        setTimeout(() => {
+          router.push('/profile');
+        }, 2000);
+      } else {
+        throw new Error('Backend submission failed');
+      }
+    } catch (error) {
+      console.error('Failed to submit verification:', error);
+      setVerificationStatus('failed');
+      toast.error('Submission Failed', 'Verification succeeded but failed to save. Please contact support.');
+    }
+  };
+
+  const handleVerificationError = () => {
+    setVerificationStatus('failed');
+    toast.error('Verification Failed', 'Failed to verify identity. Please try again.');
+  };
+
+  const copyToClipboard = () => {
+    if (!universalLink) return;
+    
+    navigator.clipboard.writeText(universalLink).then(() => {
+      setLinkCopied(true);
+      toast.success('Link Copied!', 'Universal link copied to clipboard.');
+      setTimeout(() => setLinkCopied(false), 2000);
+    }).catch((err) => {
+      console.error('Failed to copy text:', err);
+      toast.error('Copy Failed', 'Failed to copy link.');
+    });
+  };
+
+  const openSelfApp = () => {
+    if (!universalLink) return;
+    window.open(universalLink, '_blank');
+    toast.success('Opening App', 'Opening Self Protocol app...');
   };
 
   const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    } else {
-      router.push('/profile');
+    router.push('/profile');
+  };
+
+  const handleRetry = () => {
+    setVerificationStatus('pending');
+    const walletAddress = user?.wallet?.address;
+    if (walletAddress) {
+      initializeSelfApp(walletAddress);
     }
   };
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    
-    try {
-      // Create FormData for file upload
-      const submitData = new FormData();
-      
-      // Add form fields
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value) submitData.append(key, value);
-      });
-      
-      // Add files
-      if (uploadedFiles.frontDocument) {
-        submitData.append('frontDocument', uploadedFiles.frontDocument);
-      }
-      if (uploadedFiles.backDocument) {
-        submitData.append('backDocument', uploadedFiles.backDocument);
-      }
-      if (uploadedFiles.selfie) {
-        submitData.append('selfie', uploadedFiles.selfie);
-      }
-      
-      // Submit to database (simulate API call)
-      const response = await fetch('/api/kyc/submit', {
-        method: 'POST',
-        body: submitData,
-      });
-      
-      if (response.ok) {
-        toast.success('KYC Submitted!', 'Your verification documents have been submitted for review. You will be notified within 24-48 hours.');
-        router.push('/profile');
-      } else {
-        throw new Error('Submission failed');
-      }
-    } catch (error) {
-      console.error('KYC submission error:', error);
-      toast.error('Submission Failed', 'Please try again or contact support.');
-    } finally {
-      setIsSubmitting(false);
+  const getStatusDisplay = () => {
+    switch (verificationStatus) {
+      case 'pending':
+        return {
+          title: 'Scan QR Code',
+          description: 'Use your Self Protocol app to scan the QR code below',
+          color: 'blue',
+        };
+      case 'verifying':
+        return {
+          title: 'Verifying...',
+          description: 'Your documents are being verified on-chain',
+          color: 'amber',
+        };
+      case 'completed':
+        return {
+          title: 'Verification Complete!',
+          description: 'Your identity has been successfully verified',
+          color: 'green',
+        };
+      case 'failed':
+        return {
+          title: 'Verification Failed',
+          description: 'Please try again or contact support',
+          color: 'red',
+        };
     }
   };
 
-  const documentTypes = [
-    { value: 'passport', label: 'Passport', numberField: 'passportNumber', placeholder: 'Enter passport number' },
-    { value: 'national_id', label: 'National ID Card', numberField: 'documentNumber', placeholder: 'Enter ID number' },
-    { value: 'drivers_license', label: 'Driver\'s License', numberField: 'driversLicenseNumber', placeholder: 'Enter license number' },
-  ];
-
-  const selectedDocType = documentTypes.find(doc => doc.value === formData.documentType);
+  const statusDisplay = getStatusDisplay();
 
   return (
     <MobileLayout showBottomNav={false}>
@@ -138,349 +205,176 @@ export default function KYCVerifyScreen() {
               <h1 className="mb-2 text-2xl font-bold text-white">
                 Identity Verification
               </h1>
-              <p className="text-white/90">
-                Step {currentStep} of 3 - {currentStep === 1 ? 'Personal Information' : currentStep === 2 ? 'Document Upload' : 'Review & Submit'}
+              <p className="text-white/90 text-sm">
+                Powered by Self Protocol
               </p>
             </div>
           </ResponsiveContainer>
         </div>
 
         <ResponsiveContainer maxWidth="md" padding="md" className="-mt-6 relative z-10">
-          {/* Progress Bar */}
-          <div className="mb-6 rounded-xl bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              {[1, 2, 3].map((step) => (
-                <div
-                  key={step}
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
-                    step <= currentStep
-                      ? 'bg-[#1db584] text-white'
-                      : 'bg-gray-200 text-gray-500'
-                  }`}
-                >
-                  {step < currentStep ? (
-                    <CheckCircle className="h-5 w-5" />
+          {/* Main Card */}
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+            {/* Status Display */}
+            <div className="text-center mb-6">
+              {verificationStatus === 'verifying' && (
+                <Loader2 className="h-12 w-12 text-amber-600 animate-spin mx-auto mb-4" />
+              )}
+              {verificationStatus === 'completed' && (
+                <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
+              )}
+              {verificationStatus === 'failed' && (
+                <AlertTriangle className="h-12 w-12 text-red-600 mx-auto mb-4" />
+              )}
+              
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                {statusDisplay.title}
+              </h2>
+              <p className="text-sm text-gray-600">
+                {statusDisplay.description}
+              </p>
+            </div>
+
+            {/* QR Code Display */}
+            {verificationStatus === 'pending' && (
+              <>
+                <div className="flex justify-center mb-6">
+                  {selfApp ? (
+                    <SelfQRcodeWrapper
+                      selfApp={selfApp}
+                      onSuccess={handleSuccessfulVerification}
+                      onError={handleVerificationError}
+                    />
                   ) : (
-                    step
+                    <div className="w-[256px] h-[256px] bg-gray-200 animate-pulse flex items-center justify-center rounded-lg">
+                      <p className="text-gray-500 text-sm">Loading QR Code...</p>
+                    </div>
                   )}
                 </div>
-              ))}
-            </div>
-            <div className="h-2 bg-gray-200 rounded-full">
-              <div
-                className="h-2 bg-[#1db584] rounded-full transition-all duration-300"
-                style={{ width: `${(currentStep / 3) * 100}%` }}
-              />
-            </div>
-          </div>
 
-          {/* Main Content */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            {currentStep === 1 && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-gray-900">Personal Information</h2>
-                
-                <div className="grid grid-cols-1 gap-4">
-                  <Input
-                    label="First Name"
-                    type="text"
-                    value={formData.firstName}
-                    onChange={(e) => handleInputChange('firstName', e.target.value)}
-                    placeholder="Enter your first name"
-                    required
-                  />
-                  <Input
-                    label="Last Name"
-                    type="text"
-                    value={formData.lastName}
-                    onChange={(e) => handleInputChange('lastName', e.target.value)}
-                    placeholder="Enter your last name"
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4">
-                  <Input
-                    label="Date of Birth"
-                    type="date"
-                    value={formData.dateOfBirth}
-                    onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-                    required
-                  />
-                  <Input
-                    label="Nationality"
-                    type="text"
-                    value={formData.nationality}
-                    onChange={(e) => handleInputChange('nationality', e.target.value)}
-                    placeholder="Enter your nationality"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Document Type
-                  </label>
-                  <select
-                    value={formData.documentType}
-                    onChange={(e) => handleInputChange('documentType', e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-3 focus:border-[#1db584] focus:outline-none focus:ring-1 focus:ring-[#1db584] min-h-[44px]"
-                    required
+                {/* Action Buttons */}
+                <div className="flex flex-col gap-3 mb-6">
+                  <Button
+                    onClick={copyToClipboard}
+                    disabled={!universalLink}
+                    variant="secondary"
+                    size="lg"
+                    fullWidth
                   >
-                    <option value="">Select document type</option>
-                    {documentTypes.map((type) => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
+                    <Copy className="h-4 w-4 mr-2" />
+                    {linkCopied ? 'Copied!' : 'Copy Universal Link'}
+                  </Button>
+
+                  <Button
+                    onClick={openSelfApp}
+                    disabled={!universalLink}
+                    variant="primary"
+                    size="lg"
+                    fullWidth
+                    className="bg-[#1db584] hover:bg-[#15a576] focus:ring-[#1db584]/50"
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Open Self Protocol App
+                  </Button>
                 </div>
 
-                {/* Dynamic document number field based on selected type */}
-                {selectedDocType && (
-                  <Input
-                    label={`${selectedDocType.label} Number`}
-                    type="text"
-                    value={formData[selectedDocType.numberField as keyof typeof formData]}
-                    onChange={(e) => handleInputChange(selectedDocType.numberField, e.target.value)}
-                    placeholder={selectedDocType.placeholder}
-                    required
-                  />
-                )}
+                {/* User Address Display */}
+                <div className="flex flex-col items-center gap-2 mb-6">
+                  <span className="text-gray-500 text-xs uppercase tracking-wide">
+                    User Address
+                  </span>
+                  <div className="bg-gray-100 rounded-md px-3 py-2 w-full text-center break-all text-xs font-mono text-gray-800 border border-gray-200">
+                    {userId || <span className="text-gray-400">Not connected</span>}
+                  </div>
+                </div>
 
+                {/* Instructions */}
+                <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
+                  <h3 className="font-medium text-blue-900 mb-2 text-sm">How to Verify:</h3>
+                  <ol className="text-xs text-blue-700 space-y-2 list-decimal list-inside">
+                    <li>Scan the QR code above with your Self Protocol mobile app</li>
+                    <li>Or click "Open Self Protocol App" to launch the app directly</li>
+                    <li>Follow the in-app instructions to verify your identity</li>
+                    <li>Submit your government-issued Passport</li>
+                    <li>Wait for on-chain verification to complete</li>
+                  </ol>
+                </div>
+
+                {/* Download Link */}
+                <p className="text-xs text-gray-500 text-center mt-4">
+                  Don't have the Self Protocol app?{' '}
+                  <a
+                    href="https://self.id/download"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#1db584] hover:underline"
+                  >
+                    Download here
+                  </a>
+                </p>
+              </>
+            )}
+
+            {verificationStatus === 'verifying' && (
+              <div className="text-center py-8">
+                <div className="mb-6">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-100 text-amber-700">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm font-medium">Verifying on-chain...</span>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Your documents are being verified on the Celo blockchain
+                </p>
+              </div>
+            )}
+
+            {verificationStatus === 'completed' && (
+              <div className="text-center py-8">
+                <div className="mb-6">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 text-green-700">
+                    <CheckCircle className="h-4 w-4" />
+                    <span className="text-sm font-medium">Verification successful!</span>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mb-4">
+                  Redirecting to your profile...
+                </p>
+              </div>
+            )}
+
+            {verificationStatus === 'failed' && (
+              <div className="text-center py-8">
+                <div className="mb-6">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-100 text-red-700">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span className="text-sm font-medium">Verification failed</span>
+                  </div>
+                </div>
                 <Button
-                  onClick={handleNext}
+                  onClick={handleRetry}
                   variant="primary"
                   size="lg"
                   fullWidth
-                  disabled={!formData.firstName || !formData.lastName || !formData.dateOfBirth || !formData.documentType || !formData[selectedDocType?.numberField as keyof typeof formData]}
-                  className="bg-[#1db584] hover:bg-[#15a576] focus:ring-[#1db584]/50"
+                  className="bg-red-500 hover:bg-red-600 focus:ring-red-500/50"
                 >
-                  Continue
+                  Try Again
                 </Button>
               </div>
             )}
+          </div>
 
-            {currentStep === 2 && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-gray-900">Document Upload</h2>
-                
-                <div className="space-y-4">
-                  {/* Front Document */}
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-[#1db584] transition-colors">
-                    <FileText className="h-10 w-10 text-gray-400 mx-auto mb-3" />
-                    <h3 className="font-medium text-gray-900 mb-2 text-sm">
-                      Front of {selectedDocType?.label}
-                    </h3>
-                    <p className="text-xs text-gray-600 mb-3">
-                      Upload a clear photo of the front side
-                    </p>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFileUpload('frontDocument', file);
-                      }}
-                      className="hidden"
-                      id="front-document"
-                    />
-                    <label
-                      htmlFor="front-document"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-[#1db584] text-white rounded-lg hover:bg-[#15a576] cursor-pointer transition-colors text-sm"
-                    >
-                      <Upload className="h-4 w-4" />
-                      {uploadedFiles.frontDocument ? 'Change File' : 'Upload File'}
-                    </label>
-                    {uploadedFiles.frontDocument && (
-                      <p className="text-xs text-green-600 mt-2 truncate">
-                        ✓ {uploadedFiles.frontDocument.name}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Back Document (if not passport) */}
-                  {formData.documentType !== 'passport' && (
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-[#1db584] transition-colors">
-                      <FileText className="h-10 w-10 text-gray-400 mx-auto mb-3" />
-                      <h3 className="font-medium text-gray-900 mb-2 text-sm">
-                        Back of {selectedDocType?.label}
-                      </h3>
-                      <p className="text-xs text-gray-600 mb-3">
-                        Upload a clear photo of the back side
-                      </p>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleFileUpload('backDocument', file);
-                        }}
-                        className="hidden"
-                        id="back-document"
-                      />
-                      <label
-                        htmlFor="back-document"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-[#1db584] text-white rounded-lg hover:bg-[#15a576] cursor-pointer transition-colors text-sm"
-                      >
-                        <Upload className="h-4 w-4" />
-                        {uploadedFiles.backDocument ? 'Change File' : 'Upload File'}
-                      </label>
-                      {uploadedFiles.backDocument && (
-                        <p className="text-xs text-green-600 mt-2 truncate">
-                          ✓ {uploadedFiles.backDocument.name}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Selfie */}
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-[#1db584] transition-colors">
-                    <Camera className="h-10 w-10 text-gray-400 mx-auto mb-3" />
-                    <h3 className="font-medium text-gray-900 mb-2 text-sm">Selfie Photo</h3>
-                    <p className="text-xs text-gray-600 mb-3">
-                      Take a clear selfie holding your document
-                    </p>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      capture="user"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFileUpload('selfie', file);
-                      }}
-                      className="hidden"
-                      id="selfie"
-                    />
-                    <label
-                      htmlFor="selfie"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-[#1db584] text-white rounded-lg hover:bg-[#15a576] cursor-pointer transition-colors text-sm"
-                    >
-                      <Camera className="h-4 w-4" />
-                      {uploadedFiles.selfie ? 'Retake Photo' : 'Take Photo'}
-                    </label>
-                    {uploadedFiles.selfie && (
-                      <p className="text-xs text-green-600 mt-2 truncate">
-                        ✓ {uploadedFiles.selfie.name}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button
-                    onClick={handleBack}
-                    variant="secondary"
-                    size="lg"
-                    className="flex-1"
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    onClick={handleNext}
-                    variant="primary"
-                    size="lg"
-                    className="flex-1 bg-[#1db584] hover:bg-[#15a576] focus:ring-[#1db584]/50"
-                    disabled={
-                      !uploadedFiles.frontDocument ||
-                      !uploadedFiles.selfie ||
-                      (formData.documentType !== 'passport' && !uploadedFiles.backDocument)
-                    }
-                  >
-                    Continue
-                  </Button>
-                </div>
+          {/* Info Card */}
+          <div className="mt-6 rounded-xl bg-white p-4 shadow-sm">
+            <div className="flex items-start gap-3">
+              <Shield className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <h3 className="font-medium text-gray-900 mb-1 text-sm">Secure & Private</h3>
+                <p className="text-xs text-gray-600">
+                  Your identity data is encrypted and stored on-chain. Only you control access to your information through your Self Protocol DID.
+                </p>
               </div>
-            )}
-
-            {currentStep === 3 && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-gray-900">Review & Submit</h2>
-                
-                <div className="space-y-4">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-900 mb-3">Personal Information</h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Name:</span>
-                        <span className="font-medium">{formData.firstName} {formData.lastName}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Date of Birth:</span>
-                        <span className="font-medium">{formData.dateOfBirth}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Nationality:</span>
-                        <span className="font-medium">{formData.nationality}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Document:</span>
-                        <span className="font-medium">{selectedDocType?.label}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Document Number:</span>
-                        <span className="font-medium font-mono text-xs">
-                          {formData[selectedDocType?.numberField as keyof typeof formData]}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h3 className="font-medium text-gray-900 mb-3">Uploaded Documents</h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span className="truncate">Front document: {uploadedFiles.frontDocument?.name}</span>
-                      </div>
-                      {uploadedFiles.backDocument && (
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                          <span className="truncate">Back document: {uploadedFiles.backDocument?.name}</span>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span className="truncate">Selfie photo: {uploadedFiles.selfie?.name}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="flex items-start gap-3">
-                      <AlertTriangle className="h-5 w-5 text-blue-600 mt-0.5" />
-                      <div>
-                        <h4 className="font-medium text-blue-900 mb-1">Review Process</h4>
-                        <p className="text-sm text-blue-700">
-                          Your documents will be reviewed within 24-48 hours. You'll receive a notification once the verification is complete.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button
-                    onClick={handleBack}
-                    variant="secondary"
-                    size="lg"
-                    className="flex-1"
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    onClick={handleSubmit}
-                    variant="primary"
-                    size="lg"
-                    className="flex-1 bg-[#1db584] hover:bg-[#15a576] focus:ring-[#1db584]/50"
-                    isLoading={isSubmitting}
-                    loadingText="Submitting..."
-                  >
-                    Submit for Review
-                  </Button>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
         </ResponsiveContainer>
       </div>

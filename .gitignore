@@ -41,3 +41,4 @@ yarn-error.log*
 *.swp
 *.swo
 *~
+apps/web/SELF_PROTOCOL_INTEGRATION.md

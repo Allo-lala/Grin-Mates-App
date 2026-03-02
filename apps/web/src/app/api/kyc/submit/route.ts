@@ -14,6 +14,8 @@ export async function POST(request: NextRequest) {
       documentNumber: formData.get('documentNumber') as string,
       passportNumber: formData.get('passportNumber') as string,
       driversLicenseNumber: formData.get('driversLicenseNumber') as string,
+      selfDID: formData.get('selfDID') as string, // Self Protocol DID
+      walletAddress: formData.get('walletAddress') as string,
       submittedAt: new Date().toISOString(),
       status: 'pending', // pending, approved, rejected
     };
@@ -25,10 +27,11 @@ export async function POST(request: NextRequest) {
 
     // Here i would typically
     // 1. Save files to cloud storage 
-    // 2. Save KYC data to database
-    // 3. Send notification to admin for review
+    // 2. Save KYC data to database with Self Protocol DID
+    // 3. Verify the Self Protocol DID on-chain
+    // 4. Send notification to admin for review
     
-    console.log('KYC Submission:', {
+    console.log('KYC Submission with Self Protocol:', {
       ...kycData,
       files: {
         frontDocument: frontDocument?.name,
@@ -41,11 +44,16 @@ export async function POST(request: NextRequest) {
     // In a real app, save to your database here
     // const savedKyc = await db.kyc.create({ data: kycData });
 
+    // Verify Self Protocol DID on-chain (optional)
+    // This would involve calling the smart contract at NEXT_PUBLIC_CONTRACT_ADDRESS
+    // to verify the DID is valid and associated with the wallet address
+
     return NextResponse.json({
       success: true,
-      message: 'KYC submission received successfully',
+      message: 'KYC submission received successfully via Self Protocol',
       submissionId: `kyc_${Date.now()}`,
-      status: 'pending'
+      status: 'pending',
+      selfDID: kycData.selfDID,
     });
 
   } catch (error) {

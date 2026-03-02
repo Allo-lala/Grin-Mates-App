@@ -1,89 +1,90 @@
 'use client';
 
 import { useState } from 'react';
-import { Send, Download, AlertTriangle, Wallet, CreditCard, Shield, CheckCircle, Smartphone, X, ArrowLeft } from 'lucide-react';
+import { X, ArrowLeft, Copy, CheckCircle, Smartphone, CreditCard, Phone, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/lib/toast';
+import { QRCodeSVG } from 'qrcode.react';
+import Image from 'next/image';
 
-// Ethereum icon component
-const EthereumIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M11.944 17.97L4.58 13.62 11.943 24l7.37-10.38-7.372 4.35h.003zM12.056 0L4.69 12.223l7.365 4.354 7.365-4.35L12.056 0z"/>
-  </svg>
-);
-
-interface DepositReceiveDialogProps {
+interface DepositWithdrawDialogProps {
   isOpen: boolean;
-  type: 'deposit' | 'receive';
+  type: 'deposit' | 'withdraw';
   onClose: () => void;
   walletAddress: string;
-  isKycCompleted?: boolean;
   kycStatus?: 'none' | 'pending' | 'approved' | 'rejected';
   onKycRedirect?: () => void;
 }
 
-export default function DepositReceiveDialog({
+type Token = 'USDT' | 'USDC' | 'cUSD';
+type Network = 'Celo' | 'Solana' | 'Base' | 'Stellar';
+type WithdrawMethod = 'mtn' | 'airtel' | 'airtime';
+
+const tokenNetworks: Record<Token, Network[]> = {
+  USDT: ['Celo', 'Solana'],
+  USDC: ['Celo', 'Base', 'Stellar', 'Solana'],
+  cUSD: ['Celo'],
+};
+
+export default function DepositWithdrawDialog({
   isOpen,
   onClose,
   type,
   walletAddress,
-  isKycCompleted = false,
   kycStatus = 'none',
   onKycRedirect,
-}: DepositReceiveDialogProps) {
-  const [depositMethod, setDepositMethod] = useState<'crypto' | 'mobile-money' | null>(null);
-  const [mobileMoneyNetwork, setMobileMoneyNetwork] = useState<'mtn' | 'airtel' | null>(null);
+}: DepositWithdrawDialogProps) {
+  const [selectedToken, setSelectedToken] = useState<Token | null>(null);
+  const [selectedNetwork, setSelectedNetwork] = useState<Network | null>(null);
+  const [depositAddress, setDepositAddress] = useState('');
+  const [withdrawMethod, setWithdrawMethod] = useState<WithdrawMethod | null>(null);
   const [amount, setAmount] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [recipientAddress, setRecipientAddress] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
+  const generateDepositAddress = (token: Token, network: Network) => {
+    // Simulate address generation based on network
+    const addresses: Record<Network, string> = {
+      Celo: `0x${Math.random().toString(16).substr(2, 40)}`,
+      Solana: `${Math.random().toString(36).substr(2, 44)}`,
+      Base: `0x${Math.random().toString(16).substr(2, 40)}`,
+      Stellar: `G${Math.random().toString(36).substr(2, 55).toUpperCase()}`,
+    };
+    return addresses[network];
+  };
+
+  const handleTokenSelect = (token: Token) => {
+    setSelectedToken(token);
+    setSelectedNetwork(null);
+    setDepositAddress('');
+  };
+
+  const handleNetworkSelect = (network: Network) => {
+    setSelectedNetwork(network);
+    if (selectedToken) {
+      const address = generateDepositAddress(selectedToken, network);
+      setDepositAddress(address);
+    }
+  };
+
   const handleCopyAddress = () => {
-    navigator.clipboard.writeText(walletAddress);
-    toast.success('Address Copied!', 'Your wallet address has been copied to clipboard.');
-  };
-
-  const handleCryptoDeposit = async () => {
-    if (!recipientAddress || !amount) {
-      toast.error('Invalid Input', 'Please enter both recipient address and amount.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    
-    try {
-      // Simulate transaction
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast.success('Transaction Sent!', `Successfully sent ${amount} to ${recipientAddress.slice(0, 6)}...${recipientAddress.slice(-4)}`);
-      
-      // Reset form
-      setAmount('');
-      setRecipientAddress('');
-      onClose();
-    } catch (error) {
-      toast.error('Transaction Failed', 'Please try again or check your wallet balance.');
-    } finally {
-      setIsSubmitting(false);
+    if (depositAddress) {
+      navigator.clipboard.writeText(depositAddress);
+      toast.success('Address Copied!', 'Deposit address copied to clipboard.');
     }
   };
 
-  const handleMobileMoneyDeposit = async () => {
-    if (!amount || !phoneNumber || !mobileMoneyNetwork) {
+  const handleWithdraw = async () => {
+    if (!amount || !phoneNumber) {
       toast.error('Invalid Input', 'Please fill in all required fields.');
       return;
     }
 
     if (kycStatus !== 'approved') {
-      toast.error('KYC Required', 'Please complete your KYC verification to use mobile money deposits.');
+      toast.error('KYC Required', 'Please complete your KYC verification to withdraw.');
       if (onKycRedirect) {
         onKycRedirect();
       }
@@ -93,33 +94,31 @@ export default function DepositReceiveDialog({
     setIsSubmitting(true);
     
     try {
-      // Simulate mobile money deposit
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      toast.success('Deposit Initiated!', `${mobileMoneyNetwork.toUpperCase()} deposit of $${amount} has been initiated. You'll receive a prompt on your phone.`);
+      toast.success('Withdrawal Initiated!', `${withdrawMethod?.toUpperCase()} withdrawal of $${amount} has been initiated.`);
       
-      // Reset form
       setAmount('');
       setPhoneNumber('');
-      setMobileMoneyNetwork(null);
       onClose();
     } catch (error) {
-      toast.error('Deposit Failed', 'Please try again or contact support.');
+      toast.error('Withdrawal Failed', 'Please try again or contact support.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const resetDepositMethod = () => {
-    setDepositMethod(null);
-    setMobileMoneyNetwork(null);
+  const resetSelection = () => {
+    setSelectedToken(null);
+    setSelectedNetwork(null);
+    setDepositAddress('');
+    setWithdrawMethod(null);
     setAmount('');
     setPhoneNumber('');
-    setRecipientAddress('');
   };
 
   const handleClose = () => {
-    resetDepositMethod();
+    resetSelection();
     onClose();
   };
 
@@ -132,13 +131,13 @@ export default function DepositReceiveDialog({
             <div className="flex items-center gap-2">
               {type === 'deposit' ? (
                 <>
-                  <Wallet className="h-5 w-5" />
+                  <CreditCard className="h-5 w-5" />
                   <span className="text-lg font-semibold">Deposit Funds</span>
                 </>
               ) : (
                 <>
-                  <Download className="h-5 w-5" />
-                  <span className="text-lg font-semibold">Receive Funds</span>
+                  <Smartphone className="h-5 w-5" />
+                  <span className="text-lg font-semibold">Withdraw Funds</span>
                 </>
               )}
             </div>
@@ -155,72 +154,91 @@ export default function DepositReceiveDialog({
         <div className="p-4">
           {type === 'deposit' ? (
             <>
-              {!depositMethod ? (
-                /* Deposit Method Selection */
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-600 text-center mb-6">
-                    Choose how you'd like to deposit funds to your Grin Wallet
+              {!selectedToken ? (
+                /* Token Selection */
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-600 text-center mb-4">
+                    Select the token you want to deposit
                   </p>
                   
-                  {/* Crypto Deposit Option */}
+                  {/* USDT */}
                   <button
-                    onClick={() => setDepositMethod('crypto')}
-                    className="w-full p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-left"
+                    onClick={() => handleTokenSelect('USDT')}
+                    className="w-full p-3 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all text-left"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-3 rounded-lg bg-blue-100 flex-shrink-0">
-                        <EthereumIcon className="h-6 w-6 text-blue-600" />
+                      <div className="relative flex h-10 w-10 items-center justify-center flex-shrink-0">
+                        <Image 
+                          src="/usdt.png" 
+                          alt="USDT"
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-full"
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900">Deposit Crypto</h3>
-                        <p className="text-sm text-gray-600">
-                          Send crypto directly to your wallet address
+                        <h3 className="font-semibold text-gray-900">USDT</h3>
+                        <p className="text-xs text-gray-600">
+                          Tether USD
                         </p>
                       </div>
                     </div>
                   </button>
 
-                  {/* Mobile Money Option */}
+                  {/* USDC */}
                   <button
-                    onClick={() => setDepositMethod('mobile-money')}
-                    className="w-full p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all text-left"
+                    onClick={() => handleTokenSelect('USDC')}
+                    className="w-full p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-left"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="p-3 rounded-lg bg-green-100 flex-shrink-0">
-                        <Smartphone className="h-6 w-6 text-green-600" />
+                      <div className="relative flex h-10 w-10 items-center justify-center flex-shrink-0">
+                        <Image 
+                          src="/usdc.png" 
+                          alt="USDC"
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-full"
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 flex items-center gap-2 flex-wrap">
-                          Fund Account
-                          {kycStatus !== 'approved' && (
-                            <Shield className="h-4 w-4 text-amber-500" />
-                          )}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          Buy crypto with mobile money (MTN/Airtel)
+                        <h3 className="font-semibold text-gray-900">USDC</h3>
+                        <p className="text-xs text-gray-600">
+                          USD Coin
                         </p>
-                        {kycStatus === 'pending' && (
-                          <span className="text-xs text-blue-600 font-medium">KYC pending</span>
-                        )}
-                        {kycStatus === 'none' && (
-                          <span className="text-xs text-amber-600 font-medium">KYC required</span>
-                        )}
-                        {kycStatus === 'rejected' && (
-                          <span className="text-xs text-red-600 font-medium">KYC failed</span>
-                        )}
                       </div>
-                      {kycStatus === 'approved' && (
-                        <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                      )}
+                    </div>
+                  </button>
+
+                  {/* cUSD */}
+                  <button
+                    onClick={() => handleTokenSelect('cUSD')}
+                    className="w-full p-3 rounded-lg border border-gray-200 hover:border-yellow-300 hover:bg-yellow-50 transition-all text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex h-10 w-10 items-center justify-center flex-shrink-0">
+                        <Image 
+                          src="/cUSD.jpeg" 
+                          alt="cUSD"
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-full"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900">cUSD</h3>
+                        <p className="text-xs text-gray-600">
+                          Celo Dollar
+                        </p>
+                      </div>
                     </div>
                   </button>
                 </div>
-              ) : depositMethod === 'crypto' ? (
-                /* Crypto Deposit Form */
-                <div className="space-y-4">
+              ) : !selectedNetwork ? (
+                /* Network Selection */
+                <div className="space-y-3">
                   <div className="flex items-center gap-2 mb-4">
                     <button
-                      onClick={resetDepositMethod}
+                      onClick={resetSelection}
                       className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800"
                     >
                       <ArrowLeft className="h-4 w-4" />
@@ -228,49 +246,228 @@ export default function DepositReceiveDialog({
                     </button>
                   </div>
 
-                  {/* Ethereum Network Info */}
-                  <div className="rounded-lg bg-blue-50 border border-blue-200 p-4">
-                    <div className="flex items-center gap-3 mb-2">
-                      <EthereumIcon className="h-5 w-5 text-blue-600" />
-                      <span className="font-medium text-blue-900 text-sm">Ethereum Network</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                      <p className="text-xs text-amber-700">
-                        We currently only support Ethereum. Please ensure you're sending ETH or ERC-20 tokens only.
-                      </p>
-                    </div>
-                  </div>
+                  <p className="text-sm text-gray-600 text-center mb-4">
+                    Select network for {selectedToken}
+                  </p>
 
-                  <div className="rounded-lg bg-gray-50 p-4 text-center">
-                    <p className="text-xs text-gray-600 mb-2">Your Wallet Address</p>
-                    <p className="font-mono text-sm font-semibold text-gray-900 break-all">
-                      {walletAddress}
-                    </p>
-                  </div>
+                  {tokenNetworks[selectedToken].map((network) => {
+                    const networkIcons: Record<Network, string> = {
+                      Celo: '/celo-coin.png',
+                      Base: '/coinbase.png',
+                      Solana: '/solana.jpeg',
+                      Stellar: '/stellar.jpeg',
+                    };
+                    
+                    const tokenIcons: Record<Token, string> = {
+                      USDT: '/usdt.png',
+                      USDC: '/usdc.png',
+                      cUSD: '/cUSD.jpeg',
+                    };
 
-                  <Button
-                    onClick={handleCopyAddress}
-                    variant="primary"
-                    size="lg"
-                    fullWidth
-                    className="bg-blue-500 hover:bg-blue-600 focus:ring-blue-500/50"
-                  >
-                    Copy Address
-                  </Button>
-
-                  <div className="rounded-lg border border-gray-200 bg-white p-3">
-                    <p className="text-xs text-gray-600 text-center">
-                      Copy this address and use it to send crypto from another wallet or exchange
-                    </p>
-                  </div>
+                    return (
+                      <button
+                        key={network}
+                        onClick={() => handleNetworkSelect(network)}
+                        className="w-full p-3 rounded-lg border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-all text-left"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="relative flex h-10 w-10 items-center justify-center flex-shrink-0">
+                            <Image 
+                              src={tokenIcons[selectedToken]} 
+                              alt={selectedToken}
+                              width={40}
+                              height={40}
+                              className="h-10 w-10 rounded-full"
+                            />
+                            <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-white border border-gray-200">
+                              <Image 
+                                src={networkIcons[network]} 
+                                alt={network}
+                                width={16}
+                                height={16}
+                                className="h-4 w-4 rounded-full"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-gray-900">{selectedToken}</h3>
+                            <p className="text-xs text-gray-600">{network}</p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               ) : (
-                /* Mobile Money Deposit */
+                /* QR Code Display */
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-4">
                     <button
-                      onClick={resetDepositMethod}
+                      onClick={() => {
+                        setSelectedNetwork(null);
+                        setDepositAddress('');
+                      }}
+                      className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      Back
+                    </button>
+                  </div>
+
+                  <div className="text-center mb-4">
+                    <h3 className="font-semibold text-gray-900 mb-1">
+                      Deposit {selectedToken} via {selectedNetwork}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Scan QR code or copy address below
+                    </p>
+                  </div>
+
+                  {/* QR Code */}
+                  <div className="flex justify-center mb-4">
+                    <div className="p-4 bg-white rounded-lg border-2 border-gray-200">
+                      <QRCodeSVG
+                        value={depositAddress}
+                        size={200}
+                        level="H"
+                        includeMargin={true}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Deposit Address */}
+                  <div className="rounded-lg bg-gray-50 p-4">
+                    <p className="text-xs text-gray-600 mb-2 text-center">Deposit Address</p>
+                    <p className="font-mono text-sm font-semibold text-gray-900 break-all text-center mb-3">
+                      {depositAddress}
+                    </p>
+                    <Button
+                      onClick={handleCopyAddress}
+                      variant="secondary"
+                      size="lg"
+                      fullWidth
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copy Address
+                    </Button>
+                  </div>
+
+                  {/* Warning */}
+                  <div className="p-3 rounded-lg bg-amber-50 border border-amber-200">
+                    <p className="text-xs text-amber-700">
+                      ⚠️ Only send {selectedToken} on {selectedNetwork} network to this address. 
+                      Sending other tokens or using wrong network may result in loss of funds.
+                    </p>
+                  </div>
+
+                  {/* Network Info */}
+                  <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
+                    <p className="text-xs text-blue-700">
+                      <strong>Network:</strong> {selectedNetwork}<br />
+                      <strong>Token:</strong> {selectedToken}<br />
+                      <strong>Confirmations:</strong> Funds will appear after network confirmation
+                    </p>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              {/* Withdraw Options */}
+              {!withdrawMethod ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-600 text-center mb-4">
+                    Choose withdrawal method
+                  </p>
+
+                  {/* MTN Mobile Money */}
+                  <button
+                    onClick={() => setWithdrawMethod('mtn')}
+                    className="w-full p-3 rounded-lg border border-gray-200 hover:border-yellow-300 hover:bg-yellow-50 transition-all text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex h-10 w-10 items-center justify-center flex-shrink-0">
+                        <Image 
+                          src="/mtn-logo.jpeg" 
+                          alt="MTN Mobile Money"
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900">MTN Mobile Money</h3>
+                        <p className="text-xs text-gray-600">
+                          Withdraw to MTN account
+                        </p>
+                      </div>
+                      {kycStatus === 'approved' && (
+                        <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Airtel Money */}
+                  <button
+                    onClick={() => setWithdrawMethod('airtel')}
+                    className="w-full p-3 rounded-lg border border-gray-200 hover:border-red-300 hover:bg-red-50 transition-all text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex h-10 w-10 items-center justify-center flex-shrink-0">
+                        <Image 
+                          src="/airtel-logo.jpg" 
+                          alt="Airtel Money"
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900">Airtel Money</h3>
+                        <p className="text-xs text-gray-600">
+                          Withdraw to Airtel account
+                        </p>
+                      </div>
+                      {kycStatus === 'approved' && (
+                        <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Buy Airtime */}
+                  <button
+                    onClick={() => setWithdrawMethod('airtime')}
+                    className="w-full p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-left"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-full bg-blue-100 flex-shrink-0">
+                        <Phone className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900">Buy Airtime</h3>
+                        <p className="text-xs text-gray-600">
+                          Convert to airtime for any network
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+
+                  {kycStatus !== 'approved' && (
+                    <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 mt-4">
+                      <p className="text-xs text-amber-700">
+                        ⚠️ KYC verification required for withdrawals. 
+                        {kycStatus === 'pending' && ' Your verification is pending.'}
+                        {kycStatus === 'none' && ' Please complete verification to withdraw.'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* Withdrawal Form */
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <button
+                      onClick={() => setWithdrawMethod(null)}
                       className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800"
                     >
                       <ArrowLeft className="h-4 w-4" />
@@ -279,21 +476,14 @@ export default function DepositReceiveDialog({
                   </div>
 
                   {kycStatus !== 'approved' ? (
-                    /* KYC Required Message */
-                    <div className="text-center space-y-4">
-                      <div className="p-4 rounded-lg bg-amber-50 border border-amber-200">
-                        <Shield className="h-10 w-10 text-amber-500 mx-auto mb-3" />
+                    /* KYC Required */
+                    <div className="text-center py-8">
+                      <div className="p-6 rounded-lg bg-amber-50 border border-amber-200">
                         <h3 className="font-semibold text-amber-900 mb-2 text-sm">
-                          {kycStatus === 'pending' ? 'KYC Verification Pending' : 
-                           kycStatus === 'rejected' ? 'KYC Verification Failed' : 
-                           'KYC Verification Required'}
+                          KYC Verification Required
                         </h3>
                         <p className="text-xs text-amber-700 mb-4">
-                          {kycStatus === 'pending' ? 
-                            'Your documents are being reviewed. Mobile money deposits will be available once verification is complete.' :
-                           kycStatus === 'rejected' ?
-                            'Your verification was unsuccessful. Please resubmit your documents to use mobile money deposits.' :
-                            'To buy crypto with mobile money, you need to complete your identity verification first.'}
+                          Complete your identity verification to withdraw funds.
                         </p>
                         <Button
                           onClick={() => {
@@ -305,79 +495,22 @@ export default function DepositReceiveDialog({
                           variant="primary"
                           size="lg"
                           fullWidth
-                          className="bg-amber-500 hover:bg-amber-600 focus:ring-amber-500/50"
+                          className="bg-amber-500 hover:bg-amber-600"
                         >
-                          {kycStatus === 'pending' ? 'Check Status' : 
-                           kycStatus === 'rejected' ? 'Resubmit Documents' : 
-                           'Complete KYC Verification'}
+                          Complete KYC
                         </Button>
                       </div>
                     </div>
-                  ) : !mobileMoneyNetwork ? (
-                    /* Network Selection */
-                    <div className="space-y-4">
-                      <div className="p-3 rounded-lg bg-green-50 border border-green-200">
-                        <div className="flex items-center gap-2 mb-1">
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                          <span className="font-medium text-green-900 text-sm">KYC Verified</span>
-                        </div>
-                        <p className="text-xs text-green-700">
-                          Choose your mobile money network to continue
-                        </p>
-                      </div>
-
-                      <div className="space-y-3">
-                        <h3 className="font-medium text-gray-900 text-sm">Select Network</h3>
-                        
-                        {/* MTN Option */}
-                        <button
-                          onClick={() => setMobileMoneyNetwork('mtn')}
-                          className="w-full p-3 rounded-lg border border-gray-200 hover:border-yellow-300 hover:bg-yellow-50 transition-all text-left"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-yellow-100 flex-shrink-0">
-                              <Smartphone className="h-5 w-5 text-yellow-600" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-gray-900 text-sm">MTN Mobile Money</h4>
-                              <p className="text-xs text-gray-600">
-                                Pay with your MTN Mobile Money account
-                              </p>
-                            </div>
-                          </div>
-                        </button>
-
-                        {/* Airtel Option */}
-                        <button
-                          onClick={() => setMobileMoneyNetwork('airtel')}
-                          className="w-full p-3 rounded-lg border border-gray-200 hover:border-red-300 hover:bg-red-50 transition-all text-left"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-red-100 flex-shrink-0">
-                              <Smartphone className="h-5 w-5 text-red-600" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-gray-900 text-sm">Airtel Money</h4>
-                              <p className="text-xs text-gray-600">
-                                Pay with your Airtel Money account
-                              </p>
-                            </div>
-                          </div>
-                        </button>
-                      </div>
-                    </div>
                   ) : (
-                    /* Mobile Money Form */
-                    <div className="space-y-4">
-                      <div className="p-3 rounded-lg bg-green-50 border border-green-200">
-                        <div className="flex items-center gap-2 mb-1">
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                          <span className="font-medium text-green-900 text-sm">
-                            {mobileMoneyNetwork.toUpperCase()} Selected
-                          </span>
-                        </div>
-                        <p className="text-xs text-green-700">
-                          You'll receive a payment prompt on your phone
+                    <>
+                      <div className="text-center mb-4">
+                        <h3 className="font-semibold text-gray-900 mb-1">
+                          {withdrawMethod === 'mtn' && 'MTN Mobile Money'}
+                          {withdrawMethod === 'airtel' && 'Airtel Money'}
+                          {withdrawMethod === 'airtime' && 'Buy Airtime'}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Enter amount and phone number
                         </p>
                       </div>
 
@@ -391,7 +524,6 @@ export default function DepositReceiveDialog({
                           onChange={(e) => setAmount(e.target.value)}
                           placeholder="0.00"
                           min="1"
-                          max="1000"
                         />
                       </div>
 
@@ -399,81 +531,68 @@ export default function DepositReceiveDialog({
                         <label className="mb-2 block text-sm font-medium text-gray-900">
                           Phone Number
                         </label>
-                        <Input
-                          type="tel"
-                          value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
-                          placeholder={mobileMoneyNetwork === 'mtn' ? '077XXXXXXX' : '075XXXXXXX'}
-                        />
+                        <div className="flex gap-2">
+                          <Input
+                            type="tel"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            placeholder={
+                              withdrawMethod === 'mtn' ? '077XXXXXXX' : 
+                              withdrawMethod === 'airtel' ? '075XXXXXXX' : 
+                              '07XXXXXXXXX'
+                            }
+                            className="flex-1"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              // Contact picker API - will work on supported devices
+                              if ('contacts' in navigator && 'ContactsManager' in window) {
+                                (navigator as any).contacts.select(['tel'], { multiple: false })
+                                  .then((contacts: any[]) => {
+                                    if (contacts.length > 0 && contacts[0].tel && contacts[0].tel.length > 0) {
+                                      setPhoneNumber(contacts[0].tel[0]);
+                                    }
+                                  })
+                                  .catch((err: any) => {
+                                    console.log('Contact selection cancelled or failed', err);
+                                  });
+                              } else {
+                                toast.error('Not Supported', 'Contact picker is not supported on this device.');
+                              }
+                            }}
+                            className="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center"
+                            title="Select from contacts"
+                          >
+                            <User className="h-5 w-5 text-gray-600" />
+                          </button>
+                        </div>
                       </div>
 
-                      <div className="flex gap-3">
-                        <Button
-                          onClick={() => setMobileMoneyNetwork(null)}
-                          variant="secondary"
-                          size="lg"
-                          className="flex-1"
-                        >
-                          Back
-                        </Button>
-                        <Button
-                          onClick={handleMobileMoneyDeposit}
-                          isLoading={isSubmitting}
-                          loadingText="Processing..."
-                          variant="primary"
-                          size="lg"
-                          className="flex-1 bg-green-500 hover:bg-green-600 focus:ring-green-500/50"
-                          disabled={!amount || !phoneNumber}
-                        >
-                          Pay {mobileMoneyNetwork.toUpperCase()}
-                        </Button>
+                      <Button
+                        onClick={handleWithdraw}
+                        isLoading={isSubmitting}
+                        loadingText="Processing..."
+                        variant="primary"
+                        size="lg"
+                        fullWidth
+                        disabled={!amount || !phoneNumber}
+                        className="bg-[#1db584] hover:bg-[#15a576]"
+                      >
+                        {withdrawMethod === 'airtime' ? 'Buy Airtime' : 'Withdraw'}
+                      </Button>
+
+                      <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
+                        <p className="text-xs text-blue-700">
+                          <strong>Processing Time:</strong> Instant to 3 minutes<br />
+                          <strong>Fee:</strong> 1% + network charges<br />
+                          <strong>Minimum:</strong> $1.00
+                        </p>
                       </div>
-                    </div>
+                    </>
                   )}
                 </div>
               )}
-            </>
-          ) : (
-            <>
-              {/* Receive Display */}
-              <div className="space-y-4">
-                {/* Ethereum Network Info */}
-                <div className="rounded-lg bg-blue-50 border border-blue-200 p-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <EthereumIcon className="h-5 w-5 text-blue-600" />
-                    <span className="font-medium text-blue-900 text-sm">Ethereum Network</span>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                    <p className="text-xs text-amber-700">
-                      We currently only support Ethereum. Please ensure you're receiving ETH or ERC-20 tokens only.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-lg bg-gray-50 p-4 text-center">
-                  <p className="text-xs text-gray-600 mb-2">Your Wallet Address</p>
-                  <p className="font-mono text-sm font-semibold text-gray-900 break-all">
-                    {walletAddress}
-                  </p>
-                </div>
-
-                <Button
-                  onClick={handleCopyAddress}
-                  variant="primary"
-                  size="lg"
-                  fullWidth
-                  className="bg-green-500 hover:bg-green-600 focus:ring-green-500/50"
-                >
-                  Copy Address
-                </Button>
-
-                <div className="rounded-lg border border-gray-200 bg-white p-3">
-                  <p className="text-xs text-gray-600 text-center">
-                    Share your wallet address with others to receive funds
-                  </p>
-                </div>
-              </div>
             </>
           )}
         </div>

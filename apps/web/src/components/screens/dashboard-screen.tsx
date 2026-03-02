@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePrivy } from '@privy-io/react-auth';
-import { TrendingUp, TrendingDown, User, ArrowUpRight, ArrowDownLeft, Wallet } from 'lucide-react';
+import { TrendingUp, TrendingDown, User, ArrowUpRight, ArrowDownLeft, Wallet, Smartphone } from 'lucide-react';
 import VirtualCard from '@/components/virtual-card';
 import DonateModal from '@/components/screens/donate-modal';
 import DepositReceiveDialog from '@/components/deposit-receive-dialog';
@@ -19,7 +19,7 @@ export default function DashboardScreen() {
   const [hideBalance, setHideBalance] = useState(false);
   const [isDonateOpen, setIsDonateOpen] = useState(false);
   const [isDepositOpen, setIsDepositOpen] = useState(false);
-  const [isReceiveOpen, setIsReceiveOpen] = useState(false);
+  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
   const [isKycCompleted, setIsKycCompleted] = useState(false); // This would come from your backend/state management
   const [kycStatus, setKycStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none'); // KYC status from backend
 
@@ -120,13 +120,13 @@ export default function DashboardScreen() {
               hideBalance={hideBalance}
               onToggleBalance={() => setHideBalance(!hideBalance)}
               onSend={() => setIsDepositOpen(true)}
-              onReceive={() => setIsReceiveOpen(true)}
+              onReceive={() => setIsWithdrawOpen(true)}
             />
           </ResponsiveContainer>
         </div>
 
         <ResponsiveContainer maxWidth="lg" padding="md" className="-mt-6 relative z-10">
-          {/* Deposit and Receive buttons */}
+          {/* Deposit and Withdraw buttons */}
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => setIsDepositOpen(true)}
@@ -136,11 +136,11 @@ export default function DashboardScreen() {
               <span className="text-xs font-semibold text-white">Deposit</span>
             </button>
             <button
-              onClick={() => setIsReceiveOpen(true)}
+              onClick={() => setIsWithdrawOpen(true)}
               className="flex flex-col items-center justify-center gap-1 rounded-xl bg-[#1db584] px-2 py-3 shadow-md hover:shadow-lg transition-shadow min-h-[44px]"
             >
-              <ArrowDownLeft className="h-4 w-4 text-white" />
-              <span className="text-xs font-semibold text-white">Receive</span>
+              <Smartphone className="h-4 w-4 text-white" />
+              <span className="text-xs font-semibold text-white">Withdraw</span>
             </button>
           </div>
         </ResponsiveContainer>
@@ -239,17 +239,18 @@ export default function DashboardScreen() {
           isOpen={isDepositOpen}
           type="deposit"
           walletAddress={walletAddress}
-          isKycCompleted={kycStatus === 'approved'}
           kycStatus={kycStatus}
           onKycRedirect={handleKycRedirect}
           onClose={() => setIsDepositOpen(false)}
         />
 
         <DepositReceiveDialog
-          isOpen={isReceiveOpen}
-          type="receive"
+          isOpen={isWithdrawOpen}
+          type="withdraw"
           walletAddress={walletAddress}
-          onClose={() => setIsReceiveOpen(false)}
+          kycStatus={kycStatus}
+          onKycRedirect={handleKycRedirect}
+          onClose={() => setIsWithdrawOpen(false)}
         />
       </div>
     </MobileLayout>

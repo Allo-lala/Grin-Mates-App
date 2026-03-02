@@ -40,6 +40,17 @@ export default function KYCWelcomeScreen() {
         <ResponsiveContainer maxWidth="md" padding="md" className="-mt-6 relative z-10">
           {/* Main Card */}
           <div className="rounded-xl bg-white p-6 shadow-sm">
+            {/* Self Protocol Badge */}
+            <div className="mb-6 flex items-center justify-center gap-2 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
+              <Shield className="h-5 w-5 text-blue-600" />
+              <span className="text-sm font-medium text-blue-900">
+                Powered by Self Protocol
+              </span>
+              <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                Secure & Decentralized
+              </span>
+            </div>
+
             {/* What to Expect */}
             <div className="mb-6">
               <h2 className="mb-4 text-lg font-semibold text-gray-900">
@@ -114,7 +125,7 @@ export default function KYCWelcomeScreen() {
             {/* Time Estimate */}
             <div className="mb-6 text-center">
               <p className="text-xs text-gray-600">
-                ⏱️ Takes approximately <span className="font-semibold text-gray-900">3-5 minutes</span> to complete
+                ⏱️ Takes approximately <span className="font-semibold text-gray-900">1-3 minutes</span> to complete
               </p>
             </div>
 
@@ -129,7 +140,7 @@ export default function KYCWelcomeScreen() {
 
             {/* Footer Note */}
             <p className="mt-4 text-center text-xs text-gray-500">
-              Your data is protected and will only be used for verification purposes
+              Your data is protected and will only be used for Proof of Human purposes
             </p>
           </div>
 
