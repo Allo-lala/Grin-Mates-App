@@ -1,228 +1,242 @@
-# Database Migrations
+# Grin Mates Database Documentation
 
-This directory contains database schema definitions and migrations for the Grin Mates application.
+## Overview
 
-## Files
+This database schema is designed for the Grin Mates Fintech DApp, a comprehensive platform that combines cryptocurrency wallet functionality with green initiatives and environmental services.
 
-- `schema.sql` - Complete database schema (for reference and initial setup)
-- `migrations/` - Directory containing versioned migration files
-- `migrate.ts` - Migration script for applying/rolling back migrations
+## Database Structure
 
-## Migration Files
+### Core Tables
 
-### 001_create_verification_sessions.sql
+#### Users Management
+- **users**: Core user profiles with email authentication
+- **admin_users**: Admin roles and permissions
+- **kyc_submissions**: Identity verification data (Self Protocol integration)
 
-Creates the `verification_sessions` table for Self Protocol KYC integration.
+#### Crypto Wallet & Assets
+- **networks**: Supported blockchain networks (Celo, Base, Solana, Stellar)
+- **tokens**: Supported tokens per network (USDT, USDC, cUSD)
+- **user_wallet_addresses**: User addresses for different networks
+- **balances**: User token balances across all networks
+- **transactions**: All blockchain and off-chain transactions
+- **mobile_money_transactions**: Mobile money specific data (MTN, Airtel)
 
-**Features:**
-- Tracks verification sessions with status (pending, verified, failed, expired)
-- Links to users table via wallet_address foreign key
-- Stores Self Protocol session_id and Celo transaction_hash
-- Includes metadata field for additional verification data
-- Automatic updated_at timestamp trigger
-- Comprehensive indexes for efficient queries
+#### Services & Green Initiatives
+- **service_categories**: Categories of environmental services
+- **services**: Available services (gas refill, solar, recycling, etc.)
+- **gas_stations**: Gas station locations and details
+- **solar_connections**: Solar panel installation requests
+- **animal_rescues**: Animal rescue reports and tracking
+- **recycling_activities**: Smart recycling submissions
+- **wildlife_reports**: Wildlife observation reports
 
-**Fields:**
-- `id` - UUID primary key
-- `wallet_address` - User's Ethereum wallet address (FK to users.wallet_address)
-- `status` - Verification status (pending, verified, failed, expired)
-- `session_id` - Unique Self Protocol session identifier
-- `transaction_hash` - Celo blockchain transaction hash
-- `created_at` - Session creation timestamp
-- `updated_at` - Last update timestamp (auto-updated)
-- `completed_at` - Verification completion timestamp
-- `expires_at` - Session expiration timestamp
-- `failure_reason` - Reason for verification failure
-- `metadata` - JSONB field for additional data
+#### Green Points System
+- **green_points_transactions**: All green points movements
+- **green_points_balances**: User green points balances
+- **green_points_leaderboard**: View for rankings
 
-**Indexes:**
-- `idx_verification_wallet_address` - Fast lookups by wallet address
-- `idx_verification_session_id` - Fast lookups by session ID
-- `idx_verification_status` - Fast filtering by status
-- `idx_verification_created_at` - Fast sorting by creation date
+#### Events Management
+- **events**: Environmental events and activities
+- **event_participants**: User event registrations and attendance
 
-## Running Migrations
+#### System & Admin
+- **admin_transaction_actions**: Admin actions (reversals, swaps)
+- **system_settings**: Application configuration
+- **audit_logs**: System activity logging
+- **token_prices**: Real-time token price tracking
+- **exchange_rates**: Currency conversion rates
 
-### Option 1: Manual SQL Execution (Recommended for initial setup)
+## Key Features
 
-```bash
-# Apply migration
-psql -U postgres -d grin_mates -f src/components/database/migrations/001_create_verification_sessions.sql
-
-# Rollback migration (if needed)
-psql -U postgres -d grin_mates -f src/components/database/migrations/001_create_verification_sessions_rollback.sql
-```
-
-### Option 2: Using Migration Script (Future enhancement)
-
-The `migrate.ts` script provides a programmatic way to manage migrations. To use it:
-
-1. Install PostgreSQL client:
-```bash
-npm install pg
-```
-
-2. Set environment variables:
-```bash
-export DB_HOST=localhost
-export DB_PORT=5432
-export DB_NAME=grin_mates
-export DB_USER=postgres
-export DB_PASSWORD=your_password
-```
-
-3. Run migrations:
-```bash
-# Apply pending migrations
-npx tsx src/components/database/migrate.ts up
-
-# Rollback last migration
-npx tsx src/components/database/migrate.ts down
-
-# List migration status
-npx tsx src/components/database/migrate.ts list
-```
-
-## Creating New Migrations
-
-When creating new migrations:
-
-1. Create a new migration file with sequential numbering:
-   - `migrations/00X_migration_name.sql`
-   - `migrations/00X_migration_name_rollback.sql`
-
-2. Add the migration to the `MIGRATIONS` array in `migrate.ts`
-
-3. Test the migration:
-   - Apply it to a test database
-   - Verify the changes
-   - Test the rollback
-   - Re-apply to ensure idempotency
-
-4. Document the migration in this README
-
-## Migration Best Practices
-
-- **Always create rollback scripts** - Every migration should have a corresponding rollback
-- **Test migrations** - Test on a development database before production
-- **Use transactions** - Wrap migrations in BEGIN/COMMIT blocks
-- **Make migrations idempotent** - Use IF NOT EXISTS, IF EXISTS clauses
-- **Add comments** - Document what each migration does and why
-- **Version control** - Commit migrations to git before applying to production
-- **Backup first** - Always backup production database before running migrations
-
-## Verification Sessions Table Usage
-
-### Creating a new verification session
-
+### 1. Multi-Network Crypto Support
 ```sql
-INSERT INTO verification_sessions (
-  wallet_address,
-  status,
-  session_id,
-  expires_at
-) VALUES (
-  '0x1234567890abcdef1234567890abcdef12345678',
-  'pending',
-  'self_session_abc123',
-  NOW() + INTERVAL '15 minutes'
+-- Supported networks and tokens
+SELECT n.name as network, t.symbol, t.name as token_name
+FROM networks n
+JOIN tokens t ON n.id = t.network_id
+WHERE n.is_active = true AND t.is_active = true;
+```
+
+### 2. Comprehensive Transaction Tracking
+- Blockchain transaction hashes
+- Block numbers and confirmations
+- Gas fees and network costs
+- Mobile money integration
+- Admin controls for reversals
+
+### 3. Green Points Ecosystem
+- Earn points for environmental activities
+- Spend points on services
+- Leaderboard and gamification
+- Audit trail for all point movements
+
+### 4. KYC Integration with Self Protocol
+- QR code verification
+- On-chain identity verification
+- Document type support (ID, Passport, License)
+- Status tracking (pending, approved, rejected)
+
+### 5. Admin Dashboard Capabilities
+- User management
+- Transaction monitoring and control
+- KYC approval workflow
+- Service management
+- Event creation and management
+- System settings configuration
+
+## Database Views
+
+### user_portfolio
+Aggregated view of user's total balance across all tokens and networks.
+
+### recent_transactions
+Formatted transaction history with user and token details.
+
+### green_points_leaderboard
+Ranked list of users by green points earned.
+
+## Setup Instructions
+
+### 1. Prerequisites
+- PostgreSQL 12+ installed
+- Node.js environment
+- Environment variables configured
+
+### 2. Database Setup
+```bash
+# Install dependencies
+npm install pg dotenv
+
+# Run setup script
+node scripts/setup-database.js
+```
+
+### 3. Environment Variables
+```env
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_NAME=grinmates_db
+DATABASE_USER=postgres
+DATABASE_PASSWORD=your_password
+```
+
+### 4. Migrations
+Migrations are located in `migrations/` directory and run automatically during setup.
+
+## Usage Examples
+
+### User Registration
+```typescript
+import { userQueries } from '@/lib/database';
+
+const user = await userQueries.createUser(
+  'user@example.com',
+  '0x1234...5678',
+  'John Doe'
 );
 ```
 
-### Updating verification status
+### Transaction Creation
+```typescript
+import { transactionQueries } from '@/lib/database';
 
-```sql
-UPDATE verification_sessions
-SET 
-  status = 'verified',
-  completed_at = NOW(),
-  transaction_hash = '0xabcdef...'
-WHERE session_id = 'self_session_abc123';
+const transaction = await transactionQueries.createTransaction({
+  userId: user.id,
+  type: 'deposit',
+  amount: '100.00',
+  tokenId: usdcTokenId,
+  networkId: celoNetworkId,
+  transactionHash: '0xabc...def'
+});
 ```
 
-### Querying verification status
+### Green Points Management
+```typescript
+import { greenPointsQueries } from '@/lib/database';
 
-```sql
--- Get latest verification for a wallet
-SELECT *
-FROM verification_sessions
-WHERE wallet_address = '0x1234567890abcdef1234567890abcdef12345678'
-ORDER BY created_at DESC
-LIMIT 1;
-
--- Get all verified users
-SELECT DISTINCT wallet_address
-FROM verification_sessions
-WHERE status = 'verified'
-  AND (expires_at IS NULL OR expires_at > NOW());
+// Award points for recycling
+await greenPointsQueries.addPoints(
+  userId,
+  50,
+  'recycling_activity',
+  recyclingActivityId,
+  'Recycled 5kg of plastic'
+);
 ```
 
-### Cleaning up expired sessions
+### KYC Verification
+```typescript
+import { kycQueries } from '@/lib/database';
 
-```sql
--- Mark expired sessions
-UPDATE verification_sessions
-SET status = 'expired'
-WHERE status = 'pending'
-  AND expires_at < NOW();
+const kycSubmission = await kycQueries.submitKyc({
+  userId,
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@example.com',
+  dateOfBirth: '1990-01-01',
+  documentType: 'passport',
+  documentNumber: 'P123456789',
+  // ... other fields
+});
 ```
 
-## Database Schema Diagram
+## Admin Functions
 
-```
-users
-├── id (PK)
-├── wallet_address (UNIQUE)
-└── ...
+### Transaction Reversal
+```typescript
+import { adminQueries } from '@/lib/database';
 
-verification_sessions
-├── id (PK)
-├── wallet_address (FK → users.wallet_address)
-├── status
-├── session_id (UNIQUE)
-├── transaction_hash
-├── created_at
-├── updated_at
-├── completed_at
-├── expires_at
-├── failure_reason
-└── metadata (JSONB)
+const reversedTx = await adminQueries.reverseTransaction(
+  adminUserId,
+  originalTransactionId,
+  'User reported unauthorized transaction'
+);
 ```
 
-## Troubleshooting
+### User Management
+```typescript
+// Get all users with KYC status
+const users = await adminQueries.getAllUsers(50, 0);
 
-### Foreign key constraint fails
-
-If you get a foreign key error, ensure the users table exists and has the wallet_address column:
-
-```sql
--- Check if users table exists
-SELECT table_name FROM information_schema.tables 
-WHERE table_name = 'users';
-
--- Check wallet_address column
-SELECT column_name, data_type 
-FROM information_schema.columns 
-WHERE table_name = 'users' AND column_name = 'wallet_address';
+// Get transaction history
+const transactions = await adminQueries.getAllTransactions(100, 0);
 ```
 
-### Migration already applied
+## Security Considerations
 
-If a migration was partially applied, check the schema_migrations table:
+1. **Data Encryption**: Sensitive data is encrypted at rest
+2. **Audit Logging**: All admin actions are logged
+3. **Role-based Access**: Different admin permission levels
+4. **Transaction Integrity**: Database transactions ensure consistency
+5. **Input Validation**: All inputs are validated and sanitized
 
-```sql
-SELECT * FROM schema_migrations;
-```
+## Performance Optimizations
 
-You may need to manually clean up and re-run the migration.
+1. **Indexes**: Strategic indexes on frequently queried columns
+2. **Views**: Pre-computed views for complex queries
+3. **Connection Pooling**: Efficient database connection management
+4. **Partitioning**: Large tables can be partitioned by date
 
-### Index creation fails
+## Backup and Recovery
 
-If index creation fails, check if indexes already exist:
+1. **Regular Backups**: Automated daily backups recommended
+2. **Point-in-time Recovery**: Transaction log backup for recovery
+3. **Replication**: Master-slave setup for high availability
+4. **Monitoring**: Database performance and health monitoring
 
-```sql
-SELECT indexname FROM pg_indexes 
-WHERE tablename = 'verification_sessions';
-```
+## API Integration
 
-Drop conflicting indexes before re-running the migration.
+The database integrates with:
+- **Self Protocol**: For KYC verification
+- **Blockchain Networks**: For transaction verification
+- **Mobile Money APIs**: For MTN/Airtel integration
+- **Price Feeds**: For real-time token pricing
+- **Geolocation APIs**: For location-based services
+
+## Future Enhancements
+
+1. **Multi-currency Support**: Additional fiat currencies
+2. **DeFi Integration**: Yield farming and staking
+3. **NFT Support**: Environmental impact NFTs
+4. **Carbon Credits**: Carbon offset tracking
+5. **Social Features**: User interactions and sharing

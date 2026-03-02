@@ -14,7 +14,10 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --run --coverage",
     "vercel-build": "next build",
-    "verify:optimizations": "node scripts/verify-optimizations.js"
+    "verify:optimizations": "node scripts/verify-optimizations.js",
+    "db:setup": "node scripts/setup-database.js",
+    "db:migrate": "node scripts/setup-database.js",
+    "db:init-prices": "node scripts/init-prices.js"
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.8.1",
@@ -26,10 +29,12 @@
     "@selfxyz/qrcode": "^1.0.11",
     "@solana/web3.js": "^1.95.0",
     "clsx": "2.0.0",
+    "dotenv": "^16.6.1",
     "ethers": "^6.16.0",
     "lucide-react": "^0.554.0",
     "next": "14.2.33",
     "next-themes": "^0.4.6",
+    "pg": "^8.19.0",
     "qrcode.react": "^4.2.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
@@ -44,6 +49,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^22",
+    "@types/pg": "^8.18.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.1.1",

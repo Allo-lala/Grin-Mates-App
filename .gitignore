@@ -42,3 +42,6 @@ yarn-error.log*
 *.swo
 *~
 apps/web/SELF_PROTOCOL_INTEGRATION.md
+apps/web/API_DOCUMENTATION.md
+apps/web/BACKEND_SUMMARY.md
+apps/web/NEON_DEPLOYMENT.md
