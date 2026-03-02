@@ -23,8 +23,8 @@ export async function POST(request: NextRequest) {
     const backDocument = formData.get('backDocument') as File;
     const selfie = formData.get('selfie') as File;
 
-    // Here you would typically:
-    // 1. Save files to cloud storage (AWS S3, Cloudinary, etc.)
+    // Here i would typically
+    // 1. Save files to cloud storage 
     // 2. Save KYC data to database
     // 3. Send notification to admin for review
     
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Simulate database save
-    // In a real app, you'd save to your database here
+    // In a real app, save to your database here
     // const savedKyc = await db.kyc.create({ data: kycData });
 
     return NextResponse.json({

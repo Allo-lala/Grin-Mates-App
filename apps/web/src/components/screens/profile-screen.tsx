@@ -36,7 +36,7 @@ export default function ProfileScreen() {
   };
 
   const handleSaveProfile = () => {
-    // Here you would typically save to a backend
+    // Here you typically save to a backend
     console.log('Saving profile:', profileData);
     setIsEditing(false);
     // You can add actual save logic here
@@ -55,13 +55,13 @@ export default function ProfileScreen() {
 
   const handleLogout = async () => {
     try {
-      // Clear all session state - Requirements: 6.5
+      // Clear all session state 
       clearSessionState();
       
       // Logout from Privy
       await logout();
       
-      // Redirect to onboarding - Requirements: 6.5
+      // Redirect to onboarding 
       router.push('/');
     } catch (error) {
       console.error('Error during logout:', error);

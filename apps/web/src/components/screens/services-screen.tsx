@@ -250,7 +250,7 @@ export default function ServicesScreen() {
                       }
                     );
                   } else {
-                    alert('Geolocation is not supported by this browser.');
+                    alert('location is not supported by this browser.');
                   }
                 }}
                 className="flex items-center justify-between w-full rounded-xl bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow border border-gray-200"
