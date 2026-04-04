@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { usePrivy } from '@privy-io/react-auth';
+import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { TrendingUp, TrendingDown, User, Wallet, Smartphone, RefreshCw } from 'lucide-react';
 import VirtualCard from '@/components/virtual-card';
 import DonateModal from '@/components/screens/donate-modal';
@@ -40,7 +40,21 @@ interface Transaction {
 export default function DashboardScreenV2() {
   const router = useRouter();
   const { user, authenticated } = usePrivy();
+  const { wallets } = useWallets();
   const [userId, setUserId] = useState<string | null>(null);
+  const [walletAddress, setWalletAddress] = useState<string>('');
+
+  // Resolve wallet address from Privy user or embedded wallets
+  useEffect(() => {
+    const fromUser = user?.wallet?.address;
+    const fromEmbedded =
+      wallets.find((w) => w.walletClientType === 'privy')?.address ||
+      wallets[0]?.address;
+    const resolved = fromUser || fromEmbedded || '';
+    if (resolved) {
+      setWalletAddress(resolved);
+    }
+  }, [user, wallets]);
   const [totalBalance, setTotalBalance] = useState('0.00');
   const [balances, setBalances] = useState<Balance[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -52,25 +66,29 @@ export default function DashboardScreenV2() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Get wallet address from Privy user
-  const walletAddress = user?.wallet?.address || user?.email?.address || 'Unknown';
-  
+  // Get wallet address from Privy user - now handled above via useWallets
+
   // Get display name from user data
   let displayName = 'User';
   
   if (user?.email?.address) {
     displayName = user.email.address.split('@')[0];
-  } else if (user?.wallet?.address) {
-    displayName = `${user.wallet.address.slice(0, 6)}...${user.wallet.address.slice(-4)}`;
+  } else if (walletAddress) {
+    displayName = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
   }
 
   // Fetch user profile and data
   const fetchUserData = async () => {
-    if (!user?.email?.address) return;
+    const email = user?.email?.address;
+    const wallet = walletAddress;
+    const identifier = email || wallet;
+    if (!identifier) return;
 
     try {
       // Get user profile
-      const profileResponse = await apiClient.getUserProfile(user.email.address);
+      const profileResponse = email
+        ? await apiClient.getUserProfile(email)
+        : await apiClient.getUserProfile(wallet!);
       
       if (profileResponse.success && profileResponse.data) {
         const data = profileResponse.data as any;
@@ -94,8 +112,8 @@ export default function DashboardScreenV2() {
       } else {
         // User doesn't exist, register them
         await apiClient.registerUser(
-          user.email.address,
-          user.wallet?.address,
+          email || wallet!,
+          wallet,
           displayName
         );
         // Retry fetching data
@@ -116,10 +134,10 @@ export default function DashboardScreenV2() {
   };
 
   useEffect(() => {
-    if (authenticated && user?.email?.address) {
+    if (authenticated && (user?.email?.address || walletAddress)) {
       fetchUserData();
     }
-  }, [authenticated, user?.email?.address]);
+  }, [authenticated, user?.email?.address, walletAddress]);
 
   const handleKycRedirect = () => {
     router.push('/kyc/welcome');
@@ -317,9 +335,8 @@ export default function DashboardScreenV2() {
               onKycRedirect={handleKycRedirect}
               onClose={() => {
                 setIsDepositOpen(false);
-                handleRefresh(); // Refresh data after deposit
+                handleRefresh();
               }}
-              userId={userId}
             />
 
             <DepositReceiveDialog
@@ -330,9 +347,8 @@ export default function DashboardScreenV2() {
               onKycRedirect={handleKycRedirect}
               onClose={() => {
                 setIsWithdrawOpen(false);
-                handleRefresh(); // Refresh data after withdrawal
+                handleRefresh();
               }}
-              userId={userId}
             />
           </>
         )}

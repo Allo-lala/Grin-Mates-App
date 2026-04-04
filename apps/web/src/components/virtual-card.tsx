@@ -115,7 +115,9 @@ export default function VirtualCard({
                 </p>
               </div>
               <p className="text-sm font-mono text-gray-700 font-medium">
-                {`${walletAddress.slice(0, 8)}...${walletAddress.slice(-8)}`}
+                {walletAddress.length > 16
+                  ? `${walletAddress.slice(0, 8)}...${walletAddress.slice(-8)}`
+                  : walletAddress}
               </p>
             </div>
             <button
