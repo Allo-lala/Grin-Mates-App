@@ -1,12 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// In-memory storage for demo (use database in production)
-const verificationSessions = new Map<string, {
-  status: 'pending' | 'scanning' | 'verifying' | 'completed' | 'failed';
-  walletAddress?: string;
-  selfDID?: string;
-  timestamp: number;
-}>();
+import { verificationSessions } from '@/lib/kyc-sessions';
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,6 +48,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// Export the sessions map
-export { verificationSessions };

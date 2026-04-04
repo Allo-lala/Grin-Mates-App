@@ -140,7 +140,7 @@ export default function DashboardScreenV2() {
   }, [authenticated, user?.email?.address, walletAddress]);
 
   const handleKycRedirect = () => {
-    router.push('/kyc/welcome');
+    router.push('/kyc/verify');
   };
 
   // Network icon mapping

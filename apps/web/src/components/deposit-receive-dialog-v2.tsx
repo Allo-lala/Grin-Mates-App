@@ -397,7 +397,7 @@ export default function DepositWithdrawDialogV2({
                         <p className="text-xs text-blue-700">
                           <strong>Network:</strong> {selectedNetwork}<br />
                           <strong>Token:</strong> {selectedToken}<br />
-                          <strong>Confirmations:</strong> Funds will appear after network confirmation
+                          <strong>Confirmations:</strong> Funds will appear after afew seconds
                         </p>
                       </div>
                     </>

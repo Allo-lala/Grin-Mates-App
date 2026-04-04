@@ -8,7 +8,6 @@ import { ResponsiveContainer } from '@/components/layout/responsive-container';
 /**
  * KYC Welcome Screen - Inspired by ETHDenver
  * Shows before KYC flow to explain the process
- * Requirements: 2.1, 4.1, 4.2
  */
 export default function KYCWelcomeScreen() {
   const router = useRouter();
@@ -24,7 +23,7 @@ export default function KYCWelcomeScreen() {
         <div className="bg-gradient-to-br from-[#1db584] to-[#15a576] pb-8 pt-6">
           <ResponsiveContainer maxWidth="md" padding="md">
             <div className="text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full ">
                 <Shield className="h-8 w-8 text-white" />
               </div>
               <h1 className="mb-2 text-2xl font-bold text-white">
@@ -54,54 +53,11 @@ export default function KYCWelcomeScreen() {
             {/* What to Expect */}
             <div className="mb-6">
               <h2 className="mb-4 text-lg font-semibold text-gray-900">
-                What to Expect
+                
               </h2>
               
               <div className="space-y-4">
-                {/* Step 1 */}
-                <div className="flex gap-3">
-                  <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#1db584]/10">
-                    <FileText className="h-4 w-4 text-[#1db584]" />
-                  </div>
-                  <div>
-                    <h3 className="mb-1 font-semibold text-gray-900 text-sm">
-                      Personal Information
-                    </h3>
-                    <p className="text-xs text-gray-600">
-                      Provide your basic details including name, email, and date of birth
-                    </p>
-                  </div>
-                </div>
 
-                {/* Step 2 */}
-                <div className="flex gap-3">
-                  <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#1db584]/10">
-                    <FileText className="h-4 w-4 text-[#1db584]" />
-                  </div>
-                  <div>
-                    <h3 className="mb-1 font-semibold text-gray-900 text-sm">
-                      Document Verification
-                    </h3>
-                    <p className="text-xs text-gray-600">
-                      Upload your government-issued ID, passport, or driver's license
-                    </p>
-                  </div>
-                </div>
-
-                {/* Step 3 */}
-                <div className="flex gap-3">
-                  <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#1db584]/10">
-                    <FileText className="h-4 w-4 text-[#1db584]" />
-                  </div>
-                  <div>
-                    <h3 className="mb-1 font-semibold text-gray-900 text-sm">
-                      Photo Verification
-                    </h3>
-                    <p className="text-xs text-gray-600">
-                      Take a selfie holding your document for identity confirmation
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
 

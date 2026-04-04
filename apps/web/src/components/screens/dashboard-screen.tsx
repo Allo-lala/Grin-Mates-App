@@ -49,7 +49,7 @@ export default function DashboardScreen() {
   }, [userProfile?.id]);
 
   const handleKycRedirect = () => {
-    router.push('/kyc/welcome');
+    router.push('/kyc/verify');
   };
 
   // Show loading state
